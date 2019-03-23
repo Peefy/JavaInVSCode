@@ -1,4 +1,5 @@
 
+
 import java.io.*;
 import java.util.*;
 import java.*;
@@ -16,6 +17,15 @@ public class ReflectionDemo implements TestDemo{
     @Override
     public void testDemo() {
         System.out.println("Java Reflection Demo!");
+        dugu one = new dugu();
+        Class<?> oneClass = one.getClass();
+        System.out.println(oneClass);
+        System.out.println(oneClass.getName());
+        try {
+            int i = 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
     
 }
