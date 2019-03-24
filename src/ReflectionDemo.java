@@ -19,8 +19,13 @@ public class ReflectionDemo implements TestDemo{
         System.out.println("Java Reflection Demo!");
         dugu one = new dugu();
         Class<?> oneClass = one.getClass();
+        Class<?> twoClass = dugu.class;
+        System.out.println("the two classes is equal?");
+        System.out.println(oneClass == twoClass);
         System.out.println(oneClass);
         System.out.println(oneClass.getName());
+        // 一个类在运行期间只有一个类产生
+        // System.out.println(Class.forName("src.dugu"));
         try {
             int i = 0;
         } catch (Exception e) {

@@ -6,20 +6,9 @@
     "configurations": [
         {
             "type": "java",
-            "name": "Debug (Launch)-dugu",
+            "name": "Debug (Launch) - Current File",
             "request": "launch",
-            "cwd": "${workspaceFolder}",
-            "console": "internalConsole",
-            "stopOnEntry": false,
-            "mainClass": "dugu",
-            "args": ""
-        },
-        {
-            "type": "java",
-            "name": "Debug (Attach)",
-            "request": "attach",
-            "hostName": "localhost",
-            "port": 0
+            "mainClass": "dugu"
         }
     ]
 }
