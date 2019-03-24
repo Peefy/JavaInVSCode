@@ -1,7 +1,11 @@
 
 
 import java.io.*;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.*;
 import java.util.*;
+
+
 import java.*;
 /**
  * ReflectionDemo
@@ -24,13 +28,30 @@ public class ReflectionDemo implements TestDemo{
         System.out.println(oneClass == twoClass);
         System.out.println(oneClass);
         System.out.println(oneClass.getName());
-        // 一个类在运行期间只有一个类产生
         // System.out.println(Class.forName("src.dugu"));
         try {
             int i = 0;
         } catch (Exception e) {
             e.printStackTrace();
         }
+        Constructor<?>[] conArray = oneClass.getConstructors();
+        for(Constructor<?> con : conArray){
+            System.out.println(con.toString());
+            System.out.println(String.format("%s, %d", con.getName(), con.getParameterCount()));        
+        }
+        //Object obj = oneClass.getConstructor(null).newInstance();
+        for(Field field: oneClass.getFields()){
+            System.out.println(field);
+        }
+
+        for(Method field: oneClass.getMethods()){
+            System.out.println(field);
+        }
+
+        for(Annotation field: oneClass.getAnnotations()){
+            System.out.println(field);
+        }
+        //oneClass.getMethod("print").invoke(oneClass.newInstance());
     }
     
 }

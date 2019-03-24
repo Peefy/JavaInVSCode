@@ -2,8 +2,12 @@
 
 import java.io.*;
 import java.util.*;
+
+import jdk.Exported;
+
 import java.*;
 
+@Exported
 public class dugu {
     public static void main(String[] args) {
         System.out.println("DuGu, Hello Java in Vs Code");
@@ -12,12 +16,27 @@ public class dugu {
 
     int m_index;
 
+    public int count;
+
     public int getIndex(){
         return m_index;
     }
 
     public void setIndex(int index) {
         m_index = index;
+    }
+
+    public dugu(int index){
+        m_index = index;
+    }
+
+    public dugu(){
+        m_index = 555;
+        count = 888;
+    }
+
+    public void print(){
+        System.out.println("Hello dugu!");
     }
 
 }
