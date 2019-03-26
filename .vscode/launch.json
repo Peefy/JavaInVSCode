@@ -6,6 +6,13 @@
     "configurations": [
         {
             "type": "java",
+            "name": "CodeLens (Launch) - dugu",
+            "request": "launch",
+            "mainClass": "src.dugu",
+            "projectName": "JavaInVSCode_bac79b8"
+        },
+        {
+            "type": "java",
             "name": "CodeLens (Launch) - ReflectionDemo",
             "request": "launch",
             "mainClass": "src.ReflectionDemo",
