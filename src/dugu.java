@@ -13,6 +13,17 @@ public class dugu {
         System.out.println("hahahah lalalala");
         Dog dog = new Dog();
         System.out.println(dog.color);
+        Puppy myPuppy = new Puppy( "tommy" );
+        myPuppy.setAge( 2 );
+        myPuppy.getAge( );
+        myPuppy.printValueType();
+        System.out.println("value : " + myPuppy.puppyAge ); 
+
+        final double PI = 3.1415927;
+        byte a = 68;
+        char c = '\u0001';
+        String s = "\u0001";
+
     }
 
     int m_index;
@@ -39,6 +50,8 @@ public class dugu {
     public void print(){
         System.out.println("Hello dugu!");
     }
+
+
 
 }
 

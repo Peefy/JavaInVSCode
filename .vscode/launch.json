@@ -13,9 +13,16 @@
         },
         {
             "type": "java",
+            "name": "CodeLens (Launch) - dugu",
+            "request": "launch",
+            "mainClass": "dugu",
+            "projectName": "JavaInVSCode_bac79b8"
+        },
+        {
+            "type": "java",
             "name": "CodeLens (Launch) - ReflectionDemo",
             "request": "launch",
-            "mainClass": "src.ReflectionDemo",
+            "mainClass": "ReflectionDemo",
             "projectName": "JavaInVSCode_bac79b8"
         },
         {
