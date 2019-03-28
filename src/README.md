@@ -1358,3 +1358,233 @@ public class Test {
    }
 }
 ```
+
+**Java Number & Math类**
+
+一般地，当需要使用数字的时候，我们通常使用内置数据类型，如：byte、int、long、double 等。
+
+```java
+int a = 5000;
+float b = 13.65f;
+byte c = 0x4a;
+```
+
+然而，在实际开发过程中，我们经常会遇到需要使用对象，而不是内置数据类型的情形。为了解决这个问题，Java 语言为每一个内置数据类型提供了对应的包装类。
+
+所有的包装类`（Integer、Long、Byte、Double、Float、Short）`都是抽象类 `Number` 的子类。
+
+种由编译器特别支持的包装称为装箱，所以当内置数据类型被当作对象使用的时候，编译器会把内置类型装箱为包装类。相似的，编译器也可以把一个对象拆箱为内置类型。`Number` 类属于 `java.lang` 包。
+
+下面是一个使用 Integer 对象的实例：
+```java
+public class Test{
+   public static void main(String args[]){
+      Integer x = 5;
+      x =  x + 10;
+      System.out.println(x); 
+   }
+}
+```
+
+当 x 被赋为整型值时，由于x是一个对象，所以编译器要对x进行装箱。然后，为了使x能进行加运算，所以要对x进行拆箱。
+
+**Java Math类**
+
+Java 的 Math 包含了用于执行基本数学运算的属性和方法，如初等指数、对数、平方根和三角函数。
+
+Math 的方法都被定义为 static 形式，通过 Math 类可以在主函数中直接调用。
+
+```java
+public class Test {  
+    public static void main (String []args)  
+    {  
+        System.out.println("90 度的正弦值：" + Math.sin(Math.PI/2));  
+        System.out.println("0度的余弦值：" + Math.cos(0));  
+        System.out.println("60度的正切值：" + Math.tan(Math.PI/3));  
+        System.out.println("1的反正切值： " + Math.atan(1));  
+        System.out.println("π/2的角度值：" + Math.toDegrees(Math.PI/2));  
+        System.out.println(Math.PI);  
+    }  
+}
+```
+
+```java
+public class Main {   
+  public static void main(String[] args) {   
+    double[] nums = { 1.4, 1.5, 1.6, -1.4, -1.5, -1.6 };   
+    for (double num : nums) {   
+      test(num);   
+    }   
+  }   
+  
+  private static void test(double num) {   
+    System.out.println("Math.floor(" + num + ")=" + Math.floor(num));   
+    System.out.println("Math.round(" + num + ")=" + Math.round(num));   
+    System.out.println("Math.ceil(" + num + ")=" + Math.ceil(num));   
+  }   
+}
+```
+
+**Java Character类**
+
+```java
+char ch = 'a';
+ 
+// Unicode 字符表示形式
+char uniChar = '\u039A'; 
+ 
+// 字符数组
+char[] charArray ={ 'a', 'b', 'c', 'd', 'e' };
+```
+
+然而，在实际开发过程中，我们经常会遇到需要使用对象，而不是内置数据类型的情况。为了解决这个问题，Java语言为内置数据类型char提供了包装类Character类。
+
+Character类提供了一系列方法来操纵字符。你可以使用Character的构造方法创建一个Character类对象，例如：
+
+在某些情况下，Java编译器会自动创建一个Character对象。
+
+例如，将一个char类型的参数传递给需要一个Character类型参数的方法时，那么编译器会自动地将char类型参数转换为Character对象。 这种特征称为装箱，反过来称为拆箱。
+
+转义序列|描述
+-|-
+\t|在文中该处插入一个tab键
+\b|在文中该处插入一个后退键
+\n|在文中该处换行
+\r|在文中该处插入回车
+\f|在文中该处插入换页符
+\'|在文中该处插入单引号
+\"|在文中该处插入双引号
+\\\\|在文中该处插入反斜杠
+
+```java
+public class Test {
+   public static void main(String args[]) {
+      System.out.println("访问\"菜鸟教程!\"");
+   }
+}
+```
+
+**Java String类**
+
+字符串广泛应用 在Java 编程中，在 Java 中字符串属于对象，Java 提供了 String 类来创建和操作字符串。
+
+*创建字符串*
+在代码中遇到字符串常量时，这里的值是 "菜鸟教程""，编译器会使用该值创建一个 String 对象。
+
+和其它对象一样，可以使用关键字和构造方法来创建 String 对象。
+
+```java
+public class StringDemo{
+   public static void main(String args[]){
+      char[] helloArray = { 'r', 'u', 'n', 'o', 'o', 'b'};
+      String helloString = new String(helloArray);  
+      System.out.println( helloString );
+   }
+}
+```
+
+注意：*String 类是不可改变的，所以你一旦创建了 String 对象，那它的值就无法改变了。如果需要对字符串做很多修改，那么应该选择使用 StringBuffer & StringBuilder 类。*
+
+**String字符串长度**
+
+用于获取有关对象的信息的方法称为访问器方法。
+
+String 类的一个访问器方法是 length() 方法，它返回字符串对象包含的字符数。
+
+下面的代码执行后，len变量等于14:
+
+```java
+public class StringDemo {
+    public static void main(String args[]) {
+        String site = "www.runoob.com";
+        int len = site.length();
+        System.out.println( "菜鸟教程网址长度 : " + len );
+   }
+}
+```
+
+**String连接字符串**
+
+```java
+string1.concat(string2);
+
+"我的名字是 ".concat("Runoob");
+
+"Hello," + " runoob" + "!"
+
+```
+
+**创建格式化字符串**
+
+我们知道输出格式化数字可以使用 printf() 和 format() 方法。
+
+String 类使用静态方法 format() 返回一个String 对象而不是 PrintStream 对象。
+
+String 类的静态方法 format() 能用来创建可复用的格式化字符串，而不仅仅是用于一次打印输出。
+
+```java
+System.out.printf("浮点型变量的值为 " +
+                  "%f, 整型变量的值为 " +
+                  " %d, 字符串变量的值为 " +
+                  "is %s", floatVar, intVar, stringVar);
+```
+
+```java
+String fs;
+fs = String.format("浮点型变量的值为 " +
+                   "%f, 整型变量的值为 " +
+                   " %d, 字符串变量的值为 " +
+                   " %s", floatVar, intVar, stringVar);
+```
+
+**String方法
+
+SN(序号)|方法描述
+-|-
+1|char charAt(int index)返回指定索引处的 char 值。
+2|int compareTo(Object o)把这个字符串和另一个对象比较。
+3|int compareTo(String anotherString)按字典顺序比较两个字符串。
+4|int compareToIgnoreCase(String str)按字典顺序比较两个字符串，不考虑大小写。
+5|String concat(String str)将指定字符串连接到此字符串的结尾。
+6|boolean contentEquals(StringBuffer sb)当且仅当字符串与指定的StringBuffer有相同顺序的字符时候返回真。
+7|static String copyValueOf(char[] data)返回指定数组中表示该字符序列的 String。
+8|static String copyValueOf(char[] data, int offset, int count)返回指定数组中表示该字符序列的 String。
+9|boolean endsWith(String suffix)测试此字符串是否以指定的后缀结束。
+10|boolean equals(Object anObject)将此字符串与指定的对象比较。
+11|boolean equalsIgnoreCase(String anotherString)将此 String 与另一个 String 比较，不考虑大小写。
+12|byte[] getBytes()使用平台的默认字符集将此 String 编码为 byte 序列，并将结果存储到一个新的 byte 数组中
+13|byte[] getBytes(String charsetName)使用指定的字符集将此 String 编码为 byte 序列，并将结果存储到一个新的 byte 数组中。
+14|void getChars(int srcBegin, int srcEnd, char[] dst, int dstBegin)将字符从此字符串复制到目标字符数组。
+15|int hashCode()返回此字符串的哈希码。
+16|int indexOf(int ch)返回指定字符在此字符串中第一次出现处的索引。
+17|int indexOf(int ch, int fromIndex)返回在此字符串中第一次出现指定字符处的索引，从指定的索引开始搜索。
+18|int indexOf(String str)返回指定子字符串在此字符串中第一次出现处的索引。
+19|int indexOf(String str, int fromIndex)返回指定子字符串在此字符串中第一次出现处的索引，从指定的索引开始。
+20|String intern()返回字符串对象的规范化表示形式。
+21|int lastIndexOf(int ch)返回指定字符在此字符串中最后一次出现处的索引。
+22|int lastIndexOf(int ch, int fromIndex)返回指定字符在此字符串中最后一次出现处的索引，从指定的索引处开始进行反向搜索。
+23|int lastIndexOf(String str)返回指定子字符串在此字符串中最右边出现处的索引。
+24|int lastIndexOf(String str, int fromIndex)返回指定子字符串在此字符串中最后一次出现处的索引，从指定的索引开始反向搜索。
+25|int length()返回此字符串的长度。
+26|boolean matches(String regex)告知此字符串是否匹配给定的正则表达式。
+27|boolean regionMatches(boolean ignoreCase, int toffset, String other, int ooffset, int len)测试两个字符串区域是否相等。
+28|boolean regionMatches(int toffset, String other, int ooffset, int len)测试两个字符串区域是否相等。
+29|String replace(char oldChar, char newChar)返回一个新的字符串，它是通过用 newChar 替换此字符串中出现的所有 oldChar 得到的。
+30|String replaceAll(String regex, String replacement)使用给定的 replacement 替换此字符串所有匹配给定的正则表达式的子字符串。
+31|String replaceFirst(String regex, String replacement)使用给定的 replacement 替换此字符串匹配给定的正则表达式的第一个子字符串。
+32|String[] split(String regex)根据给定正则表达式的匹配拆分此字符串。
+33|String[] split(String regex, int limit)根据匹配给定的正则表达式来拆分此字符串。
+34|boolean startsWith(String prefix)测试此字符串是否以指定的前缀开始。
+35|boolean startsWith(String prefix, int toffset)测试此字符串从指定索引开始的子字符串是否以指定前缀开始。
+36|CharSequence subSequence(int beginIndex, int endIndex)返回一个新的字符序列，它是此序列的一个子序列。
+37|String substring(int beginIndex)返回一个新的字符串，它是此字符串的一个子字符串。
+38|String substring(int beginIndex, int endIndex)返回一个新字符串，它是此字符串的一个子字符串。
+39|char[] toCharArray()将此字符串转换为一个新的字符数组。
+40|String toLowerCase()使用默认语言环境的规则将此 String 中的所有字符都转换为小写。
+41|String toLowerCase(Locale locale)使用给定 Locale 的规则将此 String 中的所有字符都转换为小写。
+42|String toString()返回此对象本身（它已经是一个字符串！）。
+43|String toUpperCase()使用默认语言环境的规则将此 String 中的所有字符都转换为大写。
+44|String toUpperCase(Locale locale)使用给定 Locale 的规则将此 String 中的所有字符都转换为大写。
+45|String trim()返回字符串的副本，忽略前导空白和尾部空白。
+46|static String valueOf(primitive data type x)返回给定data type类型x参数的字符串表示形式。
+

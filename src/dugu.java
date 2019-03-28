@@ -2,6 +2,7 @@
 
 import java.*;
 import java.io.*;
+import java.lang.*;
 import java.util.*;
 
 import jdk.Exported;
@@ -23,6 +24,8 @@ public class dugu {
         byte a = 68;
         char c = '\u0001';
         String s = "\u0001";
+
+        Integer x = 10;
 
     }
 
