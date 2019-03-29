@@ -379,7 +379,7 @@ Java语言提供了八种基本类型。六种数字类型（四个整数型，�
 * char 数据类型可以储存任何字符；
 * 例子：char letter = 'A';。
 
-```
+```java
 public class PrimitiveTypeTest {  
     public static void main(String[] args) {  
         // byte  
