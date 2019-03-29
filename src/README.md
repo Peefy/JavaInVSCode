@@ -2569,3 +2569,186 @@ PatternSyntaxException 类提供了下面的方法来帮助我们查看发生了
 2|	public int getIndex() 获取错误的索引。
 3| public String getPattern() 获取错误的正则表达式模式。
 4| public String getMessage() 返回多行字符串，包含语法错误及其索引的描述、错误的正则表达式模式和模式中错误索引的可视化指示。
+
+**Java方法**
+
+*System.out.println()* 是调用系统类 System 中的标准输出对象 out 中的方法 println()。
+
+* println() 是一个方法
+* System 是系统类
+* out 是标准输出对象
+
+Java方法是语句的集合，它们在一起执行一个功能。
+* 方法是解决一类问题的步骤的有序组合
+* 方法包含于类或对象中
+* 方法在程序中被创建，在其他地方被引用
+
+方法的优点
+1. 使程序变得更简短而清晰。
+2. 有利于程序维护。
+3. 可以提高程序开发的效率。
+4. 提高了代码的重用性。
+
+方法的命名规则
+
+* 方法的名字的第一个单词应以小写字母作为开头，后面的单词则用大写字母开头写，不使用连接符。例如：`addPerson`。
+
+* 下划线可能出现在 JUnit 测试方法名称中用以分隔名称的逻辑组件。一个典型的模式是：`test<MethodUnderTest>_<state>`，例如 `testPop_emptyStack`。
+
+方法包含一个方法头和一个方法体。下面是一个方法的所有部分：
+* **修饰符：** 修饰符，这是可选的，告诉编译器如何调用该方法。定义了该方法的访问类型。
+* **返回值类型 ：** 方法可能会返回值。returnValueType 是方法返回值的数据类型。有些方法执行所需的操作，但没有返回值。在这种情况下，returnValueType 是关键字void。
+* **方法名：** 是方法的实际名称。方法名和参数表共同构成方法签名。
+* **参数类型：** 参数像是一个占位符。当方法被调用时，传递值给参数。这个值被称为实参或变量。参数列表是指方法的参数类型、顺序和参数的个数。参数是可选的，方法可以不包含任何参数。
+* **方法体：** 方法体包含具体的语句，定义该方法的功能。
+
+```java
+public class TestMax {
+   /** 主方法 */
+   public static void main(String[] args) {
+      int i = 5;
+      int j = 2;
+      int k = max(i, j);
+      System.out.println( i + " 和 " + j + " 比较，最大值是：" + k);
+   }
+ 
+   /** 返回两个整数变量较大的值 */
+   public static int max(int num1, int num2) {
+      int result;
+      if (num1 > num2)
+         result = num1;
+      else
+         result = num2;
+ 
+      return result; 
+   }
+}
+```
+
+```java
+public class TestVoidMethod {
+  public static void main(String[] args) {
+    printGrade(78.5);
+  }
+ 
+  public static void printGrade(double score) {
+    if (score >= 90.0) {
+       System.out.println('A');
+    }
+    else if (score >= 80.0) {
+       System.out.println('B');
+    }
+    else if (score >= 70.0) {
+       System.out.println('C');
+    }
+    else if (score >= 60.0) {
+       System.out.println('D');
+    }
+    else {
+       System.out.println('F');
+    }
+  }
+}
+```
+
+**Java方法可以重载同名函数**
+
+如果你调用max方法时传递的是int型参数，则 int型参数的max方法就会被调用；
+
+如果传递的是double型参数，则double类型的max方法体会被调用，这叫做方法重载；
+
+就是说一个类的两个方法拥有相同的名字，但是有不同的参数列表。
+
+Java编译器根据方法签名判断哪个方法应该被调用。
+
+方法重载可以让程序更清晰易读。执行密切相关任务的方法应该使用相同的名字。
+
+重载的方法必须拥有不同的参数列表。你不能仅仅依据修饰符或者返回类型的不同来重载方法。
+
+**变量作用域**
+
+变量的范围是程序中该变量可以被引用的部分。
+
+方法内定义的变量被称为局部变量。
+
+局部变量的作用范围从声明开始，直到包含它的块结束。
+
+局部变量必须声明才可以使用。
+
+方法的参数范围涵盖整个方法。参数实际上是一个局部变量。
+
+for循环的初始化部分声明的变量，其作用范围在整个循环。
+
+但循环体内声明的变量其适用范围是从它声明到循环体结束。它包含如下所示的变量声明：
+
+**可变参数**
+
+JDK 1.5 开始，Java支持传递同类型的可变参数给一个方法。
+
+```java
+typeName... parameterName
+```
+
+```java
+public class VarargsDemo {
+    public static void main(String args[]) {
+        // 调用可变参数的方法
+        printMax(34, 3, 3, 2, 56.5);
+        printMax(new double[]{1, 2, 3});
+    }
+ 
+    public static void printMax( double... numbers) {
+        if (numbers.length == 0) {
+            System.out.println("No argument passed");
+            return;
+        }
+ 
+        double result = numbers[0];
+ 
+        for (int i = 1; i <  numbers.length; i++){
+            if (numbers[i] >  result) {
+                result = numbers[i];
+            }
+        }
+        System.out.println("The max value is " + result);
+    }
+}
+```
+
+**finalize() 方法**
+
+Java 允许定义这样的方法，它在对象被垃圾收集器析构(回收)之前调用，这个方法叫做 finalize( )，它用来清除回收对象。
+
+例如，你可以使用 finalize() 来确保一个对象打开的文件被关闭了。
+
+在 finalize() 方法里，你必须指定在对象销毁时候要执行的操作。
+
+finalize() 一般格式是：
+
+```java
+
+public class FinalizationDemo {  
+  public static void main(String[] args) {  
+    Cake c1 = new Cake(1);  
+    Cake c2 = new Cake(2);  
+    Cake c3 = new Cake(3);  
+      
+    c2 = c3 = null;  
+    System.gc(); //调用Java垃圾收集器
+  }  
+}  
+ 
+class Cake extends Object {  
+  private int id;  
+  public Cake(int id) {  
+    this.id = id;  
+    System.out.println("Cake Object " + id + "is created");  
+  }  
+    
+  protected void finalize() throws java.lang.Throwable {  
+    super.finalize();  
+    System.out.println("Cake Object " + id + "is disposed");  
+  }  
+}
+
+```
