@@ -4063,4 +4063,290 @@ public class VirtualDemo {
 * **接口**:Java中的接口类似于生活中的接口，就是一些方法特征的集合，但没有方法的实现
 * **抽象类和抽象方法**:
 
+**Java抽象类**
 
+在面向对象的概念中，所有的对象都是通过类来描绘的，但是反过来，并不是所有的类都是用来描绘对象的，如果一个类中没有包含足够的信息来描绘一个具体的对象，这样的类就是抽象类。
+
+抽象类除了不能实例化对象之外，类的其它功能依然存在，成员变量、成员方法和构造方法的访问方式和普通类一样。
+
+由于抽象类不能实例化对象，所以抽象类必须被继承，才能被使用。也是因为这个原因，通常在设计阶段决定要不要设计抽象类。
+
+父类包含了子类集合的常见的方法，但是由于父类本身是抽象的，所以不能使用这些方法。
+
+在Java中抽象类表示的是一种继承关系，一个类只能继承一个抽象类，而一个类却可以实现多个接口。
+
+**抽象类**
+
+```java
+public abstract class Employee
+{
+   private String name;
+   private String address;
+   private int number;
+   public Employee(String name, String address, int number)
+   {
+      System.out.println("Constructing an Employee");
+      this.name = name;
+      this.address = address;
+      this.number = number;
+   }
+   public double computePay()
+   {
+     System.out.println("Inside Employee computePay");
+     return 0.0;
+   }
+   public void mailCheck()
+   {
+      System.out.println("Mailing a check to " + this.name
+       + " " + this.address);
+   }
+   public String toString()
+   {
+      return name + " " + address + " " + number;
+   }
+   public String getName()
+   {
+      return name;
+   }
+   public String getAddress()
+   {
+      return address;
+   }
+   public void setAddress(String newAddress)
+   {
+      address = newAddress;
+   }
+   public int getNumber()
+   {
+     return number;
+   }
+}
+```
+
+```java
+public class AbstractDemo
+{
+   public static void main(String [] args)
+   {
+      /* 以下是不允许的，会引发错误 */
+      Employee e = new Employee("George W.", "Houston, TX", 43);
+ 
+      System.out.println("\n Call mailCheck using Employee reference--");
+      e.mailCheck();
+    }
+}
+```
+
+**Java继承抽象类**
+
+```java
+public class Salary extends Employee
+{
+   private double salary; //Annual salary
+   public Salary(String name, String address, int number, double
+      salary)
+   {
+       super(name, address, number);
+       setSalary(salary);
+   }
+   public void mailCheck()
+   {
+       System.out.println("Within mailCheck of Salary class ");
+       System.out.println("Mailing check to " + getName()
+       + " with salary " + salary);
+   }
+   public double getSalary()
+   {
+       return salary;
+   }
+   public void setSalary(double newSalary)
+   {
+       if(newSalary >= 0.0)
+       {
+          salary = newSalary;
+       }
+   }
+   public double computePay()
+   {
+      System.out.println("Computing salary pay for " + getName());
+      return salary/52;
+   }
+}
+
+public class AbstractDemo
+{
+   public static void main(String [] args)
+   {
+      Salary s = new Salary("Mohd Mohtashim", "Ambehta, UP", 3, 3600.00);
+      Employee e = new Salary("John Adams", "Boston, MA", 2, 2400.00);
+ 
+      System.out.println("Call mailCheck using Salary reference --");
+      s.mailCheck();
+ 
+      System.out.println("\n Call mailCheck using Employee reference--");
+      e.mailCheck();
+    }
+}
+
+```
+
+**抽象方法**
+
+如果你想设计这样一个类，该类包含一个特别的成员方法，该方法的具体实现由它的子类确定，那么你可以在父类中声明该方法为抽象方法。
+
+Abstract 关键字同样可以用来声明抽象方法，抽象方法只包含一个方法名，而没有方法体。
+
+抽象方法没有定义，方法名后面直接跟一个分号，而不是花括号。
+
+```java
+public abstract class Employee
+{
+   private String name;
+   private String address;
+   private int number;
+   
+   public abstract double computePay();
+   
+   //其余代码
+}
+```
+
+声明抽象方法会造成以下两个结果：
+* 如果一个类包含抽象方法，那么该类必须是抽象类。
+* 任何子类必须重写父类的抽象方法，或者声明自身为抽象类。
+
+继承抽象方法的子类必须重写该方法。否则，该子类也必须声明为抽象类。最终，必须有子类实现该抽象方法，否则，从最初的父类到最终的子类都不能用来实例化对象。
+
+如果Salary类继承了Employee类，那么它必须实现computePay()方法：
+
+```java
+public class Salary extends Employee
+{
+   private double salary; // Annual salary
+  
+   public double computePay()
+   {
+      System.out.println("Computing salary pay for " + getName());
+      return salary/52;
+   }
+ 
+   //其余代码
+}
+```
+
+**抽象类总结规定**
+* 抽象类不能被实例化(初学者很容易犯的错)，如果被实例化，就会报错，编译无法通过。只有抽象类的非抽象子类可以创建对象。
+* 抽象类中不一定包含抽象方法，但是有抽象方法的类必定是抽象类。
+* 抽象类中的抽象方法只是声明，不包含方法体，就是不给出方法的具体实现也就是方法的具体功能。
+* 构造方法，类方法（用 static 修饰的方法）不能声明为抽象方法。
+* 抽象类的子类必须给出抽象类中的抽象方法的具体实现，除非该子类也是抽象类
+
+**Java封装**
+
+在面向对象程式设计方法中，封装（英语：Encapsulation）是指一种将抽象性函式接口的实现细节部份包装、隐藏起来的方法。
+
+封装可以被认为是一个保护屏障，防止该类的代码和数据被外部类定义的代码随机访问。
+
+要访问该类的代码和数据，必须通过严格的接口控制。
+
+封装最主要的功能在于我们能修改自己的实现代码，而不用修改那些调用我们代码的程序片段。
+
+适当的封装可以让程式码更容易理解与维护，也加强了程式码的安全性。
+
+**封装的优点**
+
+* 良好的封装能够减少耦合。
+* 类内部的结构可以自由修改。
+* 可以对成员变量进行更精确的控制。
+* 隐藏信息，实现细节。
+
+**实现Java封装的步骤**
+
+```java
+public class Person {
+    private String name;
+    private int age;
+}
+```
+
+这段代码中，将 `name` 和 `age` 属性设置为私有的，只能本类才能访问，其他类都访问不了，如此就对信息进行了隐藏。
+
+```java
+public class Person{
+    private String name;
+    private int age;
+​
+    public int getAge(){
+      return age;
+    }
+​
+    public String getName(){
+      return name;
+    }
+​
+    public void setAge(int age){
+      this.age = age;
+    }
+​
+    public void setName(String name){
+      this.name = name;
+    }
+}
+```
+
+采用 `this` 关键字是为了解决实例变量（private String name）和局部变量（setName(String name)中的name变量）之间发生的同名的冲突。
+
+```java
+public class EncapTest{
+ 
+   private String name;
+   private String idNum;
+   private int age;
+ 
+   public int getAge(){
+      return age;
+   }
+ 
+   public String getName(){
+      return name;
+   }
+ 
+   public String getIdNum(){
+      return idNum;
+   }
+ 
+   public void setAge( int newAge){
+      age = newAge;
+   }
+ 
+   public void setName(String newName){
+      name = newName;
+   }
+ 
+   public void setIdNum( String newId){
+      idNum = newId;
+   }
+}
+```
+
+以上实例中public方法是外部类访问该类成员变量的入口。
+
+通常情况下，这些方法被称为getter和setter方法。
+
+因此，任何要访问类中私有成员变量的类都要通过这些getter和setter方法。
+
+通过如下的例子说明EncapTest类的变量怎样被访问：
+
+```java
+public class RunEncap{
+   public static void main(String args[]){
+      EncapTest encap = new EncapTest();
+      encap.setName("James");
+      encap.setAge(20);
+      encap.setIdNum("12343ms");
+ 
+      System.out.print("Name : " + encap.getName()+ 
+                             " Age : "+ encap.getAge());
+    }
+}
+```
