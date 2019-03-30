@@ -4,6 +4,7 @@ import java.*;
 import java.io.*;
 import java.lang.*;
 import java.util.*;
+import java.util.concurrent.FutureTask;
 
 import jdk.Exported;
 
@@ -27,6 +28,14 @@ public class dugu {
 
         Integer x = 10;
 
+        Thread javaThread = new Thread(new Runnable(){
+            @Override
+            public void run() {
+                Thread.sleep(1000);
+            }
+        }, "thread_name");
+        javaThread.setPriority(Thread.MAX_PRIORITY);
+        javaThread.run();
     }
 
     int m_index;
