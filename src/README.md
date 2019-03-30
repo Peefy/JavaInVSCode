@@ -5855,3 +5855,1331 @@ public class CallableThreadTest implements Callable<Integer> {
 通过对多线程的使用，可以编写出非常高效的程序。不过请注意，如果你创建太多的线程，程序执行的效率实际上是降低了，而不是提升了。
 
 请记住，上下文的切换开销也很重要，如果你创建了太多的线程，CPU 花费在上下文的切换的时间将多于执行程序的时间！
+
+**Java Applet基础**
+
+Applet 是一种 Java 程序。它一般运行在支持 Java 的 Web 浏览器内。因为它有完整的 Java API支持,所以Applet 是一个全功能的 Java 应用程序。
+
+如下所示是独立的 Java 应用程序和 applet 程序之间重要的不同：
+* Java 中 Applet 类继承了 java.applet.Applet 类
+* Applet 类没有定义 main()，所以一个 Applet 程序不会调用 main() 方法
+* Applet 被设计为嵌入在一个 HTML 页面
+* 当用户浏览包含 Applet 的 HTML 页面，Applet 的代码就被下载到用户的机器上
+* 要查看一个 Applet 需要 JVM。 JVM 可以是 Web 浏览器的一个插件，或一个独立的运行时环境
+* 用户机器上的 JVM 创建一个 Applet 类的实例，并调用 Applet 生命周期过程中的各种方法
+* Applet 有 Web 浏览器强制执行的严格的安全规则，Applet 的安全机制被称为沙箱安全
+* Applet 需要的其他类可以用 Java 归档（JAR）文件的形式下载下来
+
+**Applet的生命周期**
+
+Applet 类中的四个方法给我们提供了一个框架，你可以在该框架上开发小程序：
+* **init**：该方法的目的是为你的 Applet 提供所需的任何初始化。在 Applet 标记内的 param 标签被处理后调用该方法
+* **start**：浏览器调用 init 方法后，该方法被自动调用。每当用户从其他页面返回到包含 Applet 的页面时，则调用该方法
+* **stop**：当用户从包含 Applet 的页面移除的时候，该方法自动被调用。因此，可以在相同的 Applet 中反复调用该方法
+* **destroy**：此方法仅当浏览器正常关闭时调用。因为 Applet 只有在 HTML 网页上有效，所以你不应该在用户离开包含 Applet 的页面后遗漏任何资源
+* **paint**：该方法在 start() 方法之后立即被调用，或者在 Applet 需要重绘在浏览器的时候调用。paint() 方法实际上继承于 java.awt
+
+```java
+import java.applet.*;
+import java.awt.*;
+ 
+public class HelloWorldApplet extends Applet
+{
+   public void paint (Graphics g)
+   {
+      g.drawString ("Hello World", 25, 50);
+   }
+}
+```
+
+**Applet的调用**
+
+```html
+<html>
+<title>The Hello, World Applet</title>
+<hr>
+<applet code="HelloWorldApplet.class" width="320" height="120">
+If your browser was Java-enabled, a "Hello, World"
+message would appear here.
+</applet>
+<hr>
+</html>
+```
+
+**获得applet参数**
+
+```java
+import java.applet.*;
+import java.awt.*;
+public class CheckerApplet extends Applet
+{
+   int squareSize = 50;// 初始化默认大小
+   public void init () {}
+   private void parseSquareSize (String param) {}
+   private Color parseColor (String param) {}
+   public void paint (Graphics g) {}
+}
+
+public void init ()
+{
+   String squareSizeParam = getParameter ("squareSize");
+   parseSquareSize (squareSizeParam);
+   String colorParam = getParameter ("color");
+   Color fg = parseColor (colorParam);
+   setBackground (Color.black);
+   setForeground (fg);
+}
+private void parseSquareSize (String param)
+{
+   if (param == null) return;
+   try {
+      squareSize = Integer.parseInt (param);
+   }
+   catch (Exception e) {
+     // 保留默认值
+   }
+}
+
+```
+
+**指定 applet 参数**
+
+```html
+<html>
+<title>Checkerboard Applet</title>
+<hr>
+<applet code="CheckerApplet.class" width="480" height="320">
+<param name="color" value="blue">
+<param name="squaresize" value="30">
+</applet>
+<hr>
+</html>
+```
+
+**applet 事件处理**
+Applet 类从 Container 类继承了许多事件处理方法。Container 类定义了几个方法，例如：processKeyEvent() 和processMouseEvent()，用来处理特别类型的事件，还有一个捕获所有事件的方法叫做 processEvent。
+
+为了响应一个事件，Applet 必须重写合适的事件处理方法。
+```java
+import java.awt.event.MouseListener;
+import java.awt.event.MouseEvent;
+import java.applet.Applet;
+import java.awt.Graphics;
+ 
+public class ExampleEventHandling extends Applet
+                             implements MouseListener {
+ 
+    StringBuffer strBuffer;
+ 
+    public void init() {
+         addMouseListener(this);
+         strBuffer = new StringBuffer();
+        addItem("initializing the applet ");
+    }
+ 
+    public void start() {
+        addItem("starting the applet ");
+    }
+ 
+    public void stop() {
+        addItem("stopping the applet ");
+    }
+ 
+    public void destroy() {
+        addItem("unloading the applet");
+    }
+ 
+    void addItem(String word) {
+        System.out.println(word);
+        strBuffer.append(word);
+        repaint();
+    }
+ 
+    public void paint(Graphics g) {
+         //Draw a Rectangle around the applet's display area.
+        g.drawRect(0, 0,
+                      getWidth() - 1,
+                      getHeight() - 1);
+ 
+         //display the string inside the rectangle.
+        g.drawString(strBuffer.toString(), 10, 20);
+    }
+ 
+  
+    public void mouseEntered(MouseEvent event) {
+    }
+    public void mouseExited(MouseEvent event) {
+    }
+    public void mousePressed(MouseEvent event) {
+    }
+    public void mouseReleased(MouseEvent event) {
+    }
+ 
+    public void mouseClicked(MouseEvent event) {
+         addItem("mouse clicked! ");
+    }
+}
+```
+
+**Java文档注释**
+
+Java 支持三种注释方式。前两种分别是 // 和 /* */，第三种被称作说明注释，它以 /** 开始，以 */结束。
+
+说明注释允许你在程序中嵌入关于程序的信息。你可以使用 javadoc 工具软件来生成信息，并输出到HTML文件中。
+
+说明注释，使你更加方便的记录你的程序信息。
+
+**javadoc标签**
+
+标签|描述|实例
+-|-|-
+@author|标识一个类的作者|@author description
+@deprecated|指名一个过期的类或成员|@deprecated description
+{@docRoot}|指明当前文档根目录的路径|Directory Path
+@exception|标志一个类抛出的异常|@exception exception-name explanation
+{@inheritDoc}|从直接父类继承的注释|Inherits a comment from the immediate surperclass.
+{@link}|插入一个到另一个主题的链接|{@link name text}
+{@linkplain}|插入一个到另一个主题的链接，但是该链接显示纯文本字体|Inserts an in-line link to another topic.
+@param|说明一个方法的参数|@param parameter-name explanation
+@return|说明返回值类型|@return explanation
+@see|指定一个到另一个主题的链接|@see anchor
+@serial|说明一个序列化属性|@serial description
+@serialData|说明通过writeObject( ) 和 writeExternal( )方法写的数据|@serialData description
+@serialField|说明一个ObjectStreamField组件|@serialField name type description
+@since|标记当引入一个特定的变化时|@since release
+@throws|和 @exception标签一样.|The @throws tag has the same meaning as the @exception tag.
+{@value}|显示常量的值，该常量必须是static属性。|Displays the value of a constant, which must be a static field.
+@version|指定类的版本|@version info
+
+```java
+import java.io.*;
+ 
+/**
+* 这个类演示了文档注释
+* @author Ayan Amhed
+* @version 1.2
+*/
+public class SquareNum {
+   /**
+   * This method returns the square of num.
+   * This is a multiline description. You can use
+   * as many lines as you like.
+   * @param num The value to be squared.
+   * @return num squared.
+   */
+   public double square(double num) {
+      return num * num;
+   }
+   /**
+   * This method inputs a number from the user.
+   * @return The value input as a double.
+   * @exception IOException On input error.
+   * @see IOException
+   */
+   public double getNumber() throws IOException {
+      InputStreamReader isr = new InputStreamReader(System.in);
+      BufferedReader inData = new BufferedReader(isr);
+      String str;
+      str = inData.readLine();
+      return (new Double(str)).doubleValue();
+   }
+   /**
+   * This method demonstrates square().
+   * @param args Unused.
+   * @return Nothing.
+   * @exception IOException On input error.
+   * @see IOException
+   */
+   public static void main(String args[]) throws IOException
+   {
+      SquareNum ob = new SquareNum();
+      double val;
+      System.out.println("Enter value to be squared: ");
+      val = ob.getNumber();
+      val = ob.square(val);
+      System.out.println("Squared value is " + val);
+   }
+}
+```
+
+```java
+/*
+ * <p>项目名称: ${project_name} </p> 
+ * <p>文件名称: ${file_name} </p> 
+ * <p>描述: [类型描述] </p>
+ * <p>创建时间: ${date} </p>
+ * <p>公司信息: ************公司 *********部</p> 
+ * @author <a href="mail to: *******@******.com" rel="nofollow">作者</a>
+ * @version v1.0
+ * @update [序号][日期YYYY-MM-DD] [更改人姓名][变更描述]
+ */
+```
+
+```java
+/**
+ * @Title：${enclosing_method}
+ * @Description: [功能描述]
+ * @Param: ${tags}
+ * @Return: ${return_type}
+ * @author <a href="mail to: *******@******.com" rel="nofollow">作者</a>
+ * @CreateDate: ${date} ${time}</p> 
+ * @update: [序号][日期YYYY-MM-DD] [更改人姓名][变更描述]     
+ */
+```
+
+```java
+/**
+ * 获取  ${bare_field_name}
+ */
+
+
+
+/**
+ * 设置   ${bare_field_name} 
+ * (${param})${field}
+ */
+```
+
+**Java 8**
+
+* **Lambda 表达式**  Lambda允许把函数作为一个方法的参数（函数作为参数传递进方法中。
+
+```java
+//java7
+Collections.sort(names, new Comparator<String>() {
+@Override
+public int compare(String s1, String s2) {
+   return s1.compareTo(s2);
+   }
+});
+//java8
+Collections.sort(names, (s1, s2) -> s1.compareTo(s2));
+   
+```
+
+* **方法引用**  方法引用提供了非常有用的语法，可以直接引用已有Java类或对象（实例）的方法或构造器。与lambda联合使用，方法引用可以使语言的构造更紧凑简洁，减少冗余代码。
+
+方法引用可以使语言的构造更紧凑简洁，减少冗余代码。
+
+方法引用使用一对冒号 :: 。
+
+```java
+package com.runoob.main;
+ 
+@FunctionalInterface
+public interface Supplier<T> {
+    T get();
+}
+ 
+class Car {
+    //Supplier是jdk1.8的接口，这里和lamda一起使用了
+    public static Car create(final Supplier<Car> supplier) {
+        return supplier.get();
+    }
+ 
+    public static void collide(final Car car) {
+        System.out.println("Collided " + car.toString());
+    }
+ 
+    public void follow(final Car another) {
+        System.out.println("Following the " + another.toString());
+    }
+ 
+    public void repair() {
+        System.out.println("Repaired " + this.toString());
+    }
+}
+
+final Car car = Car.create( Car::new );
+final List< Car > cars = Arrays.asList( car );
+
+cars.forEach( Car::collide );
+
+cars.forEach( Car::repair );
+
+final Car police = Car.create( Car::new );
+cars.forEach( police::follow );
+
+```
+
+```java
+import java.util.List;
+import java.util.ArrayList;
+ 
+public class Java8Tester {
+   public static void main(String args[]){
+      List names = new ArrayList();
+        
+      names.add("Google");
+      names.add("Runoob");
+      names.add("Taobao");
+      names.add("Baidu");
+      names.add("Sina");
+        
+      names.forEach(System.out::println);
+   }
+}
+```
+
+* **函数式接口**
+
+函数式接口(Functional Interface)就是一个有且仅有一个抽象方法，但是可以有多个非抽象方法的接口。
+
+函数式接口可以被隐式转换为 lambda 表达式。
+
+Lambda 表达式和方法引用（实际上也可认为是Lambda表达式）上。
+
+如定义了一个函数式接口如下：
+
+```java
+@FunctionalInterface
+interface GreetingService 
+{
+    void sayMessage(String message);
+}
+
+GreetingService greetService1 = message -> System.out.println("Hello " + message);
+
+```
+
+```java
+import java.util.Arrays;
+import java.util.List;
+import java.util.function.Predicate;
+ 
+public class Java8Tester {
+   public static void main(String args[]){
+      List<Integer> list = Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9);
+        
+      // Predicate<Integer> predicate = n -> true
+      // n 是一个参数传递到 Predicate 接口的 test 方法
+      // n 如果存在则 test 方法返回 true
+        
+      System.out.println("输出所有数据:");
+        
+      // 传递参数 n
+      eval(list, n->true);
+        
+      // Predicate<Integer> predicate1 = n -> n%2 == 0
+      // n 是一个参数传递到 Predicate 接口的 test 方法
+      // 如果 n%2 为 0 test 方法返回 true
+        
+      System.out.println("输出所有偶数:");
+      eval(list, n-> n%2 == 0 );
+        
+      // Predicate<Integer> predicate2 = n -> n > 3
+      // n 是一个参数传递到 Predicate 接口的 test 方法
+      // 如果 n 大于 3 test 方法返回 true
+        
+      System.out.println("输出大于 3 的所有数字:");
+      eval(list, n-> n > 3 );
+   }
+    
+   public static void eval(List<Integer> list, Predicate<Integer> predicate) {
+      list.stream().filter(predicate).forEach(System.out::println);
+   }
+}
+```
+
+* **默认方法** 默认方法就是一个在接口里面有了一个实现的方法。
+
+```java
+public interface Vehicle {
+   default void print(){
+      System.out.println("我是一辆车!");
+   }
+}
+
+public class Car implements Vehicle, FourWheeler {
+   default void print(){
+      System.out.println("我是一辆四轮汽车!");
+   }
+}
+
+public class Car implements Vehicle, FourWheeler {
+   public void print(){
+      Vehicle.super.print();
+   }
+}
+
+```
+
+* **新工具** 新的编译工具，如：Nashorn引擎 jjs、 类依赖分析器jdeps。
+
+```java
+```
+
+* **Stream API** 新添加的Stream API（java.util.stream） 把真正的函数式编程风格引入到Java中。
+
+```java
+List<Integer> transactionsIds = 
+widgets.stream()
+             .filter(b -> b.getColor() == RED)
+             .sorted((x,y) -> x.getWeight() - y.getWeight())
+             .mapToInt(Widget::getWeight)
+             .sum();
+
+Random random = new Random();
+random.ints().limit(10).forEach(System.out::println);
+
+List<String>strings = Arrays.asList("abc", "", "bc", "efg", "abcd","", "jkl");
+// 获取空字符串的数量
+int count = strings.stream().filter(string -> string.isEmpty()).count();
+int count = strings.parallelStream().filter(string -> string.isEmpty()).count();
+```
+
+```java
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.IntSummaryStatistics;
+import java.util.List;
+import java.util.Random;
+import java.util.stream.Collectors;
+import java.util.Map;
+ 
+public class Java8Tester {
+   public static void main(String args[]){
+      System.out.println("使用 Java 7: ");
+        
+      // 计算空字符串
+      List<String> strings = Arrays.asList("abc", "", "bc", "efg", "abcd","", "jkl");
+      System.out.println("列表: " +strings);
+      long count = getCountEmptyStringUsingJava7(strings);
+        
+      System.out.println("空字符数量为: " + count);
+      count = getCountLength3UsingJava7(strings);
+        
+      System.out.println("字符串长度为 3 的数量为: " + count);
+        
+      // 删除空字符串
+      List<String> filtered = deleteEmptyStringsUsingJava7(strings);
+      System.out.println("筛选后的列表: " + filtered);
+        
+      // 删除空字符串，并使用逗号把它们合并起来
+      String mergedString = getMergedStringUsingJava7(strings,", ");
+      System.out.println("合并字符串: " + mergedString);
+      List<Integer> numbers = Arrays.asList(3, 2, 2, 3, 7, 3, 5);
+        
+      // 获取列表元素平方数
+      List<Integer> squaresList = getSquares(numbers);
+      System.out.println("平方数列表: " + squaresList);
+      List<Integer> integers = Arrays.asList(1,2,13,4,15,6,17,8,19);
+        
+      System.out.println("列表: " +integers);
+      System.out.println("列表中最大的数 : " + getMax(integers));
+      System.out.println("列表中最小的数 : " + getMin(integers));
+      System.out.println("所有数之和 : " + getSum(integers));
+      System.out.println("平均数 : " + getAverage(integers));
+      System.out.println("随机数: ");
+        
+      // 输出10个随机数
+      Random random = new Random();
+        
+      for(int i=0; i < 10; i++){
+         System.out.println(random.nextInt());
+      }
+        
+      System.out.println("使用 Java 8: ");
+      System.out.println("列表: " +strings);
+        
+      count = strings.stream().filter(string->string.isEmpty()).count();
+      System.out.println("空字符串数量为: " + count);
+        
+      count = strings.stream().filter(string -> string.length() == 3).count();
+      System.out.println("字符串长度为 3 的数量为: " + count);
+        
+      filtered = strings.stream().filter(string ->!string.isEmpty()).collect(Collectors.toList());
+      System.out.println("筛选后的列表: " + filtered);
+        
+      mergedString = strings.stream().filter(string ->!string.isEmpty()).collect(Collectors.joining(", "));
+      System.out.println("合并字符串: " + mergedString);
+        
+      squaresList = numbers.stream().map( i ->i*i).distinct().collect(Collectors.toList());
+      System.out.println("Squares List: " + squaresList);
+      System.out.println("列表: " +integers);
+        
+      IntSummaryStatistics stats = integers.stream().mapToInt((x) ->x).summaryStatistics();
+        
+      System.out.println("列表中最大的数 : " + stats.getMax());
+      System.out.println("列表中最小的数 : " + stats.getMin());
+      System.out.println("所有数之和 : " + stats.getSum());
+      System.out.println("平均数 : " + stats.getAverage());
+      System.out.println("随机数: ");
+        
+      random.ints().limit(10).sorted().forEach(System.out::println);
+        
+      // 并行处理
+      count = strings.parallelStream().filter(string -> string.isEmpty()).count();
+      System.out.println("空字符串的数量为: " + count);
+   }
+    
+   private static int getCountEmptyStringUsingJava7(List<String> strings){
+      int count = 0;
+        
+      for(String string: strings){
+        
+         if(string.isEmpty()){
+            count++;
+         }
+      }
+      return count;
+   }
+    
+   private static int getCountLength3UsingJava7(List<String> strings){
+      int count = 0;
+        
+      for(String string: strings){
+        
+         if(string.length() == 3){
+            count++;
+         }
+      }
+      return count;
+   }
+    
+   private static List<String> deleteEmptyStringsUsingJava7(List<String> strings){
+      List<String> filteredList = new ArrayList<String>();
+        
+      for(String string: strings){
+        
+         if(!string.isEmpty()){
+             filteredList.add(string);
+         }
+      }
+      return filteredList;
+   }
+    
+   private static String getMergedStringUsingJava7(List<String> strings, String separator){
+      StringBuilder stringBuilder = new StringBuilder();
+        
+      for(String string: strings){
+        
+         if(!string.isEmpty()){
+            stringBuilder.append(string);
+            stringBuilder.append(separator);
+         }
+      }
+      String mergedString = stringBuilder.toString();
+      return mergedString.substring(0, mergedString.length()-2);
+   }
+    
+   private static List<Integer> getSquares(List<Integer> numbers){
+      List<Integer> squaresList = new ArrayList<Integer>();
+        
+      for(Integer number: numbers){
+         Integer square = new Integer(number.intValue() * number.intValue());
+            
+         if(!squaresList.contains(square)){
+            squaresList.add(square);
+         }
+      }
+      return squaresList;
+   }
+    
+   private static int getMax(List<Integer> numbers){
+      int max = numbers.get(0);
+        
+      for(int i=1;i < numbers.size();i++){
+        
+         Integer number = numbers.get(i);
+            
+         if(number.intValue() > max){
+            max = number.intValue();
+         }
+      }
+      return max;
+   }
+    
+   private static int getMin(List<Integer> numbers){
+      int min = numbers.get(0);
+        
+      for(int i=1;i < numbers.size();i++){
+         Integer number = numbers.get(i);
+        
+         if(number.intValue() < min){
+            min = number.intValue();
+         }
+      }
+      return min;
+   }
+    
+   private static int getSum(List numbers){
+      int sum = (int)(numbers.get(0));
+        
+      for(int i=1;i < numbers.size();i++){
+         sum += (int)numbers.get(i);
+      }
+      return sum;
+   }
+    
+   private static int getAverage(List<Integer> numbers){
+      return getSum(numbers) / numbers.size();
+   }
+}
+```
+
+* **Date Time API** 加强对日期与时间的处理。
+
+```java
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.LocalDateTime;
+import java.time.Month;
+ 
+public class Java8Tester {
+   public static void main(String args[]){
+      Java8Tester java8tester = new Java8Tester();
+      java8tester.testLocalDateTime();
+   }
+    
+   public void testLocalDateTime(){
+    
+      // 获取当前的日期时间
+      LocalDateTime currentTime = LocalDateTime.now();
+      System.out.println("当前时间: " + currentTime);
+        
+      LocalDate date1 = currentTime.toLocalDate();
+      System.out.println("date1: " + date1);
+        
+      Month month = currentTime.getMonth();
+      int day = currentTime.getDayOfMonth();
+      int seconds = currentTime.getSecond();
+        
+      System.out.println("月: " + month +", 日: " + day +", 秒: " + seconds);
+        
+      LocalDateTime date2 = currentTime.withDayOfMonth(10).withYear(2012);
+      System.out.println("date2: " + date2);
+        
+      // 12 december 2014
+      LocalDate date3 = LocalDate.of(2014, Month.DECEMBER, 12);
+      System.out.println("date3: " + date3);
+        
+      // 22 小时 15 分钟
+      LocalTime date4 = LocalTime.of(22, 15);
+      System.out.println("date4: " + date4);
+        
+      // 解析字符串
+      LocalTime date5 = LocalTime.parse("20:15:30");
+      System.out.println("date5: " + date5);
+   }
+}
+```
+
+* **Optional 类** Optional 类已经成为 Java 8 类库的一部分，用来解决空指针异常。
+
+```java
+import java.util.Optional;
+ 
+public class Java8Tester {
+   public static void main(String args[]){
+   
+      Java8Tester java8Tester = new Java8Tester();
+      Integer value1 = null;
+      Integer value2 = new Integer(10);
+        
+      // Optional.ofNullable - 允许传递为 null 参数
+      Optional<Integer> a = Optional.ofNullable(value1);
+        
+      // Optional.of - 如果传递的参数是 null，抛出异常 NullPointerException
+      Optional<Integer> b = Optional.of(value2);
+      System.out.println(java8Tester.sum(a,b));
+   }
+    
+   public Integer sum(Optional<Integer> a, Optional<Integer> b){
+    
+      // Optional.isPresent - 判断值是否存在
+        
+      System.out.println("第一个参数值存在: " + a.isPresent());
+      System.out.println("第二个参数值存在: " + b.isPresent());
+        
+      // Optional.orElse - 如果值存在，返回它，否则返回默认值
+      Integer value1 = a.orElse(new Integer(0));
+        
+      //Optional.get - 获取值，值需要存在
+      Integer value2 = b.get();
+      return value1 + value2;
+   }
+}
+```
+
+* **Nashorn, JavaScript 引擎** Java 8提供了一个新的Nashorn javascript引擎，它允许我们在JVM上运行特定的javascript应用。
+
+```bash
+jjs sample.js
+```
+
+```java
+import javax.script.ScriptEngineManager;
+import javax.script.ScriptEngine;
+import javax.script.ScriptException;
+ 
+public class Java8Tester {
+   public static void main(String args[]){
+   
+      ScriptEngineManager scriptEngineManager = new ScriptEngineManager();
+      ScriptEngine nashorn = scriptEngineManager.getEngineByName("nashorn");
+        
+      String name = "Runoob";
+      Integer result = null;
+      
+      try {
+         nashorn.eval("print('" + name + "')");
+         result = (Integer) nashorn.eval("10 + 2");
+         
+      }catch(ScriptException e){
+         System.out.println("执行脚本错误: "+ e.getMessage());
+      }
+      
+      System.out.println(result.toString());
+   }
+}
+```
+
+* **Base64**
+
+```java
+import java.util.Base64;
+import java.util.UUID;
+import java.io.UnsupportedEncodingException;
+ 
+public class Java8Tester {
+   public static void main(String args[]){
+      try {
+        
+         // 使用基本编码
+         String base64encodedString = Base64.getEncoder().encodeToString("runoob?java8".getBytes("utf-8"));
+         System.out.println("Base64 编码字符串 (基本) :" + base64encodedString);
+        
+         // 解码
+         byte[] base64decodedBytes = Base64.getDecoder().decode(base64encodedString);
+        
+         System.out.println("原始字符串: " + new String(base64decodedBytes, "utf-8"));
+         base64encodedString = Base64.getUrlEncoder().encodeToString("TutorialsPoint?java8".getBytes("utf-8"));
+         System.out.println("Base64 编码字符串 (URL) :" + base64encodedString);
+        
+         StringBuilder stringBuilder = new StringBuilder();
+        
+         for (int i = 0; i < 10; ++i) {
+            stringBuilder.append(UUID.randomUUID().toString());
+         }
+        
+         byte[] mimeBytes = stringBuilder.toString().getBytes("utf-8");
+         String mimeEncodedString = Base64.getMimeEncoder().encodeToString(mimeBytes);
+         System.out.println("Base64 编码字符串 (MIME) :" + mimeEncodedString);
+         
+      }catch(UnsupportedEncodingException e){
+         System.out.println("Error :" + e.getMessage());
+      }
+   }
+}
+```
+
+**Java 9**
+
+* **模块系统**：模块是一个包的容器，Java 9 最大的变化之一是引入了模块系统（Jigsaw 项目）
+```java
+module com.runoob.mymodule {
+}
+
+module java9 {
+    exports;
+
+    requires;
+}
+```
+* **REPL (JShell)**：交互式编程环境
+```java
+$ jshell
+|  Welcome to JShell -- Version 9-ea
+|  For an introduction type: /help intro
+jshell>
+
+jshell> /exit
+| Goodbye 
+
+```
+* **HTTP 2 客户端**：HTTP/2标准是HTTP协议的最新版本，新的 HTTPClient API 支持 WebSocket 和 HTTP2 流以及服务器推送特性。
+```java
+URI newURI = new URI("http://localhost:8080");
+HttpRequest request = HttpRequest.create(newURI).GET();
+HttpResponse response = request.response();
+String responseBody = response.body(HttpResponse.asString());
+```
+* **改进的 Javadoc**：Javadoc 现在支持在 API 文档中的进行搜索。另外，Javadoc 的输出现在符合兼容 HTML5 标准
+```java
+/**
+  * @author MahKumar
+  * @version 0.1
+*/
+public class Tester {
+   /**
+      * Default method to be run to print 
+      * <p>Hello world</p>
+      * @param args command line arguments
+   */
+   public static void main(String []args) {
+      System.out.println("Hello World");
+   }
+}
+```
+* **多版本兼容 JAR 包**：多版本兼容 JAR 功能能让你创建仅在特定版本的 Java 环境中运行库程序时选择使用的 class 版本。
+```java
+通过 --release 参数指定编译版本。
+```
+* **集合工厂方法**：List，Set 和 Map 接口中，新的静态工厂方法可以创建这些集合的不可变实例。
+```java
+///旧方法创建集合
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+ 
+public class Tester {
+   public static void main(String []args) {
+      Set<String> set = new HashSet<>();
+      set.add("A");
+      set.add("B");
+      set.add("C");
+      set = Collections.unmodifiableSet(set);
+      System.out.println(set);
+      List<String> list = new ArrayList<>();
+ 
+      list.add("A");
+      list.add("B");
+      list.add("C");
+      list = Collections.unmodifiableList(list);
+      System.out.println(list);
+      Map<String, String> map = new HashMap<>();
+ 
+      map.put("A","Apple");
+      map.put("B","Boy");
+      map.put("C","Cat");
+      map = Collections.unmodifiableMap(map);
+      System.out.println(map);
+   }
+}
+///新方法创建集合
+public class Tester {
+ 
+   public static void main(String []args) {
+      Set<String> set = Set.of("A", "B", "C");      
+      System.out.println(set);
+      List<String> list = List.of("A", "B", "C");
+      System.out.println(list);
+      Map<String, String> map = Map.of("A","Apple","B","Boy","C","Cat");
+      System.out.println(map);
+  
+      Map<String, String> map1 = Map.ofEntries (
+         new AbstractMap.SimpleEntry<>("A","Apple"),
+         new AbstractMap.SimpleEntry<>("B","Boy"),
+         new AbstractMap.SimpleEntry<>("C","Cat"));
+      System.out.println(map1);
+   }
+}
+```
+* **私有接口方法**：在接口中使用private私有方法。我们可以使用 private 访问修饰符在接口中编写私有方法。
+```java
+public class Tester {
+   public static void main(String []args) {
+      LogOracle log = new LogOracle();
+      log.logInfo("");
+      log.logWarn("");
+      log.logError("");
+      log.logFatal("");
+      
+      LogMySql log1 = new LogMySql();
+      log1.logInfo("");
+      log1.logWarn("");
+      log1.logError("");
+      log1.logFatal("");
+   }
+}
+final class LogOracle implements Logging { 
+}
+final class LogMySql implements Logging { 
+}
+interface Logging {
+   String ORACLE = "Oracle_Database";
+   String MYSQL = "MySql_Database";
+ 
+   private void log(String message, String prefix) {
+      getConnection();
+      System.out.println("Log Message : " + prefix);
+      closeConnection();
+   }
+   default void logInfo(String message) {
+      log(message, "INFO");
+   }
+   default void logWarn(String message) {
+      log(message, "WARN");
+   }
+   default void logError(String message) {
+      log(message, "ERROR");
+   }
+   default void logFatal(String message) {
+      log(message, "FATAL");
+   }
+   private static void getConnection() {
+      System.out.println("Open Database connection");
+   }
+   private static void closeConnection() {
+      System.out.println("Close Database connection");
+   }
+}
+```
+* **进程 API:**：改进的 API 来控制和管理操作系统进程。引进 java.lang.ProcessHandle 及其嵌套接口 Info 来让开发者逃离时常因为要获取一个本地进程的 PID 而不得不使用本地代码的窘境。类似C#的Process类
+```java
+import java.time.ZoneId;
+import java.util.stream.Stream;
+import java.util.stream.Collectors;
+import java.io.IOException;
+ 
+public class Tester {
+   public static void main(String[] args) throws IOException {
+      ProcessBuilder pb = new ProcessBuilder("notepad.exe");
+      String np = "Not Present";
+      Process p = pb.start();
+      ProcessHandle.Info info = p.info();
+      System.out.printf("Process ID : %s%n", p.pid());
+      System.out.printf("Command name : %s%n", info.command().orElse(np));
+      System.out.printf("Command line : %s%n", info.commandLine().orElse(np));
+ 
+      System.out.printf("Start time: %s%n",
+         info.startInstant().map(i -> i.atZone(ZoneId.systemDefault())
+         .toLocalDateTime().toString()).orElse(np));
+ 
+      System.out.printf("Arguments : %s%n",
+         info.arguments().map(a -> Stream.of(a).collect(
+         Collectors.joining(" "))).orElse(np));
+ 
+      System.out.printf("User : %s%n", info.user().orElse(np));
+   } 
+}
+```
+* **改进的 Stream API**：改进的 Stream API 添加了一些便利的方法，使流处理更容易，并使用收集器编写复杂的查询。Java 9 为 Stream 新增了几个方法：dropWhile、takeWhile、ofNullable，为 iterate 方法新增了一个重载方法
+```java
+public class Tester {
+   public static void main(String[] args) {
+      Stream.of("a","b","c","","e","f").takeWhile(s->!s.isEmpty())
+         .forEach(System.out::print);      
+   } 
+}
+
+public class Tester {
+   public static void main(String[] args) {
+      Stream.of("a","b","c","","e","f").dropWhile(s-> !s.isEmpty())
+         .forEach(System.out::print);
+   } 
+}
+
+public class Tester {
+   public static void main(String[] args) {
+      IntStream.iterate(3, x -> x < 10, x -> x+ 3).forEach(System.out::println);
+   } 
+}
+
+public class Tester {
+   public static void main(String[] args) {
+      long count = Stream.ofNullable(100).count();
+      System.out.println(count);
+  
+      count = Stream.ofNullable(null).count();
+      System.out.println(count);
+   } 
+}
+```
+* **改进 try-with-resources**：如果你已经有一个资源是 final 或等效于 final 变量,您可以在 try-with-resources 语句中使用该变量，而无需在 try-with-resources 语句中声明一个新变量。
+```java
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.Reader;
+import java.io.StringReader;
+ 
+public class Tester {
+   public static void main(String[] args) throws IOException {
+      System.out.println(readData("test"));
+   } 
+   static String readData(String message) throws IOException {
+      Reader inputString = new StringReader(message);
+      BufferedReader br = new BufferedReader(inputString);
+      try (BufferedReader br1 = br) {
+         return br1.readLine();
+      }
+   }
+}
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.Reader;
+import java.io.StringReader;
+ 
+public class Tester {
+   public static void main(String[] args) throws IOException {
+      System.out.println(readData("test"));
+   } 
+   static String readData(String message) throws IOException {
+      Reader inputString = new StringReader(message);
+      BufferedReader br = new BufferedReader(inputString);
+      try (br) {
+         return br.readLine();
+      }
+   }
+}
+
+```
+* **改进的弃用注解 @Deprecated**：注解 @Deprecated 可以标记 Java API 状态，可以表示被标记的 API 将会被移除，或者已经破坏。
+```java
+@Deprecated(since="9", forRemoval=true)
+public interface MyInter{
+   void play();
+} 
+```
+* **改进钻石操作符(Diamond Operator)**：匿名类可以使用钻石操作符(Diamond Operator)。
+```java
+public class Tester {
+   public static void main(String[] args) {
+      Handler<Integer> intHandler = new Handler<>(1) {
+         @Override
+         public void handle() {
+            System.out.println(content);
+         }
+      };
+      intHandler.handle();
+      Handler<? extends Number> intHandler1 = new Handler<>(2) {
+         @Override
+         public void handle() {
+            System.out.println(content);
+         }
+      };
+      intHandler1.handle();
+      Handler<?> handler = new Handler<>("test") {
+         @Override
+         public void handle() {
+            System.out.println(content);
+         }
+      };
+ 
+      handler.handle();    
+   }  
+}
+ 
+abstract class Handler<T> {
+   public T content;
+ 
+   public Handler(T content) {
+      this.content = content; 
+   }
+   
+   abstract void handle();
+}
+```
+* **改进 Optional 类**：java.util.Optional 添加了很多新的有用方法，Optional 可以直接转为 stream。Java9增加了`stream()` `ifPresentOrElse()` `or()`三个方法
+```java
+import java.util.Optional;
+ 
+public class Tester {
+   public static void main(String[] args) {
+      Optional<Integer> optional = Optional.of(1);
+ 
+      optional.ifPresentOrElse( x -> System.out.println("Value: " + x),() -> 
+         System.out.println("Not Present."));
+ 
+      optional = Optional.empty();
+ 
+      optional.ifPresentOrElse( x -> System.out.println("Value: " + x),() -> 
+         System.out.println("Not Present."));
+   }  
+}
+```
+* **多分辨率图像 API**：定义多分辨率图像API，开发者可以很容易的操作和展示不同分辨率的图像了。
+```java
+import java.io.IOException;
+import java.net.URL;
+import java.net.MalformedURLException;
+import java.util.ArrayList;
+import java.util.List;
+import java.awt.Image;
+import java.awt.image.MultiResolutionImage;
+import java.awt.image.BaseMultiResolutionImage;
+ 
+import javax.imageio.ImageIO;
+ 
+public class Tester {
+   public static void main(String[] args) throws IOException, MalformedURLException {
+ 
+      List<String> imgUrls = List.of("http://www.runoob.com/wp-content/themes/runoob/assets/img/runoob-logo@2x.png",
+         "http://www.runoob.com/wp-content/themes/runoob/assets/img/runoob-logo.png",
+         "http://www.runoob.com/wp-content/themes/runoob/assets/images/qrcode.png");
+ 
+      List<Image> images = new ArrayList<Image>();
+ 
+      for (String url : imgUrls) {
+         images.add(ImageIO.read(new URL(url)));
+      }
+ 
+      // 读取所有图片
+      MultiResolutionImage multiResolutionImage = 
+         new BaseMultiResolutionImage(images.toArray(new Image[0]));
+ 
+      // 获取图片的所有分辨率
+      List<Image> variants = multiResolutionImage.getResolutionVariants();
+ 
+      System.out.println("Total number of images: " + variants.size());
+ 
+      for (Image img : variants) {
+         System.out.println(img);
+      }
+ 
+      // 根据不同尺寸获取对应的图像分辨率
+      Image variant1 = multiResolutionImage.getResolutionVariant(156, 45);
+      System.out.printf("\nImage for destination[%d,%d]: [%d,%d]", 
+         156, 45, variant1.getWidth(null), variant1.getHeight(null));
+ 
+      Image variant2 = multiResolutionImage.getResolutionVariant(311, 89);
+      System.out.printf("\nImage for destination[%d,%d]: [%d,%d]", 311, 89, 
+         variant2.getWidth(null), variant2.getHeight(null));
+ 
+      Image variant3 = multiResolutionImage.getResolutionVariant(622, 178);
+      System.out.printf("\nImage for destination[%d,%d]: [%d,%d]", 622, 178, 
+         variant3.getWidth(null), variant3.getHeight(null));
+ 
+      Image variant4 = multiResolutionImage.getResolutionVariant(300, 300);
+      System.out.printf("\nImage for destination[%d,%d]: [%d,%d]", 300, 300, 
+         variant4.getWidth(null), variant4.getHeight(null));
+   }  
+}
+```
+* **改进的 CompletableFuture API**：CompletableFuture 类的异步机制可以在 ProcessHandle.onExit 方法退出时执行操作。
+```java
+public CompletableFuture<T> completeOnTimeout(T value, long timeout, TimeUnit unit)
+
+public CompletableFuture<T> orTimeout(long timeout, TimeUnit unit)
+
+public <U> CompletableFuture<U> newIncompleteFuture()
+```
+* **轻量级的 JSON API**：内置了一个轻量级的JSON API
+```java
+import org.json.simple.JSONObject;
+ 
+class JsonEncodeDemo{
+   public static void main(String[] args){
+      JSONObject obj = new JSONObject();
+ 
+      obj.put("name", "foo");
+      obj.put("num", new Integer(100));
+      obj.put("balance", new Double(1000.21));
+      obj.put("is_vip", new Boolean(true));
+ 
+      System.out.print(obj);
+   }
+}
+```
+* **响应式流（Reactive Streams) API**：Java 9中引入了新的响应式流 API 来支持 Java 9 中的响应式编程。
+```java
+// NumberPrinter.java
+package com.jdojo.stream;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.SubmissionPublisher;
+import java.util.stream.LongStream;
+public class NumberPrinter {
+    public static void main(String[] args) {        
+        CompletableFuture<Void> subTask = null;
+        // The publisher is closed when the try block exits
+        try (SubmissionPublisher<Long> pub = new SubmissionPublisher<>()) {
+            // Print the buffer size used for each subscriber
+            System.out.println("Subscriber Buffer Size: " + pub.getMaxBufferCapacity());
+            // Add a subscriber to the publisher. The subscriber prints the published elements
+            subTask = pub.consume(System.out::println);
+            // Generate and publish five integers
+            LongStream.range(1L, 6L)
+                      .forEach(pub::submit);
+        }
+        if (subTask != null) {
+            try {
+                // Wait until the subscriber is complete
+                subTask.get();
+            } catch (InterruptedException | ExecutionException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+}
+```
+
+**Java 10**
+
+* **局部变量类型推断**
+```java
+var list = new ArrayList<String>();
+```
+* **应用类数据共享(CDS)**   CDS 在 JDK5 时被引进以改善 JVM 启动的表现，同时减少当多个虚拟机在同一个物理或虚拟的机器上运行时的资源占用。
+* **额外的 Unicode 语言标签扩展**  这将改善 java.util.Locale 类和相关的 API 以实现额外 BCP47 语言标签的 Unicode 扩展。尤其是，货币类型，一周的第一天，区域覆盖和时区等标签现在将被支持。
+* **基于时间的版本控制**
+* **根证书**
+* **并行全垃圾回收器 G1**
+* **移除 Native-Header 自动生成工具**
+* **垃圾回收器接口**
+* **线程-局部变量管控**
+* **在备用存储装置上的堆分配**
+* **新增API**
+```java
+java.awt.Toolkit:
+int getMenuShortcutKeyMaskEx();
+
+java.awt.geom.Path2D: 
+void trimToSize();
+
+java.io.ByteArrayOutputStream:
+String toString(Charset);
+
+java.io.PrintStream:
+lang.io.PrintWriter:
+```
+
+**Java 11**
+
+* **字符串加强**
+```java
+// 判断字符串是否为空白
+" ".isBlank(); // true
+// 去除首尾空格
+" Javastack ".strip(); // "Javastack"
+// 去除尾部空格
+" Javastack ".stripTrailing(); // " Javastack"
+// 去除首部空格
+" Javastack ".stripLeading(); // "Javastack "
+// 复制字符串
+"Java".repeat(3);// "JavaJavaJava"
+// 行数统计
+"A\nB\nC".lines().count(); // 3
+```
+
+* 181: Nest-Based Access Control（基于嵌套的访问控制）
+* 309: Dynamic Class-File Constants（动态的类文件常量）
+* 315: Improve Aarch64 Intrinsics（改进 Aarch64 Intrinsics）
+* 318: Epsilon: A No-Op Garbage Collector（Epsilon 垃圾回收器，又被称为"No-Op（无操作）"回收器）
+* 320: Remove the Java EE and CORBA Modules（移除 Java EE 和 CORBA 模块，JavaFX 也已被移除）
+* 321: HTTP Client (Standard)
+* 323: Local-Variable Syntax for Lambda Parameters（用于 Lambda 参数的局部变量语法）
+* 324: Key Agreement with Curve25519 and Curve448（采用 Curve25519 和 Curve448 算法实现的密钥协议）
+* 327: Unicode 10
+* 328: Flight Recorder（飞行记录仪）
+* 329: ChaCha20 and Poly1305 Cryptographic Algorithms（实现 ChaCha20 和 Poly1305 加密算法）
+* 330: Launch Single-File Source-Code Programs（启动单个 Java 源代码文件的程序）
+* 331: Low-Overhead Heap Profiling（低开销的堆分配采样方法）
+* 332: Transport Layer Security (TLS) 1.3（对 TLS 1.3 的支持）
+* 333: ZGC: A Scalable Low-Latency Garbage Collector (Experimental)（ZGC：可伸缩的低延迟垃圾回收器，处于实验性阶段）
+* 335: Deprecate the Nashorn JavaScript Engine（弃用 Nashorn JavaScript 引擎）
+* 336: Deprecate the Pack200 Tools and API（弃用 Pack200 工具及其 API）
+
+**Java 12**
+
+<img src="https://github.com/Peefy/JavaInVSCode/blob/master/img/java12.jpeg"></img>
+
+**更多Java例程**
+
+[菜鸟教程](http://www.runoob.com/java/java-examples.html)
