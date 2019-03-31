@@ -792,34 +792,30 @@ public class MyRunnable implements Runnable
 --|自减: 操作数的值减少1|B-- 或 --B 等于 19
 
 ```java
-
-     int a = 10;
-     int b = 20;
-     int c = 25;
-     int d = 25;
-     System.out.println("a + b = " + (a + b) );
-     System.out.println("a - b = " + (a - b) );
-     System.out.println("a * b = " + (a * b) );
-     System.out.println("b / a = " + (b / a) );
-     System.out.println("b % a = " + (b % a) );
-     System.out.println("c % a = " + (c % a) );
-     System.out.println("a++   = " +  (a++) );
-     System.out.println("a--   = " +  (a--) );
-     // 查看  d++ 与 ++d 的不同
-     System.out.println("d++   = " +  (d++) );
-     System.out.println("++d   = " +  (++d) );
-
+int a = 10;
+int b = 20;
+int c = 25;
+int d = 25;
+System.out.println("a + b = " + (a + b) );
+System.out.println("a - b = " + (a - b) );
+System.out.println("a * b = " + (a * b) );
+System.out.println("b / a = " + (b / a) );
+System.out.println("b % a = " + (b % a) );
+System.out.println("c % a = " + (c % a) );
+System.out.println("a++   = " +  (a++) );
+System.out.println("a--   = " +  (a--) );
+// 查看  d++ 与 ++d 的不同
+System.out.println("d++   = " +  (d++) );
+System.out.println("++d   = " +  (++d) );
 ```
 
 ```java
-
-        int a = 5;//定义一个变量；
-        int b = 5;
-        int x = 2*++a;
-        int y = 2*b++;
-        System.out.println("自增运算符前缀运算后a="+a+",x="+x);
-        System.out.println("自增运算符后缀运算后b="+b+",y="+y);
-
+int a = 5;//定义一个变量；
+int b = 5;
+int x = 2*++a;
+int y = 2*b++;
+System.out.println("自增运算符前缀运算后a="+a+",x="+x);
+System.out.println("自增运算符后缀运算后b="+b+",y="+y);
 ```
 
 **关系运算符**
@@ -834,16 +830,14 @@ public class MyRunnable implements Runnable
 \<=|检查左操作数的值是否小于或等于右操作数的值，如果是那么条件为真。|（A <= B）为真。
 
 ```java
-
-     int a = 10;
-     int b = 20;
-     System.out.println("a == b = " + (a == b) );
-     System.out.println("a != b = " + (a != b) );
-     System.out.println("a > b = " + (a > b) );
-     System.out.println("a < b = " + (a < b) );
-     System.out.println("b >= a = " + (b >= a) );
-     System.out.println("b <= a = " + (b <= a) );
-
+int a = 10;
+int b = 20;
+System.out.println("a == b = " + (a == b) );
+System.out.println("a != b = " + (a != b) );
+System.out.println("a > b = " + (a > b) );
+System.out.println("a < b = " + (a < b) );
+System.out.println("b >= a = " + (b >= a) );
+System.out.println("b <= a = " + (b <= a) );
 ```
 
 **位运算符**
@@ -873,29 +867,23 @@ A ^ B = 0011 0001
 \>\>\>|按位右移补零操作符。左操作数的值按右操作数指定的位数右移，移动得到的空位以零填充。|A>>>2得到15即0000 1111
 
 ```java
-     int a = 60; /* 60 = 0011 1100 */ 
-     int b = 13; /* 13 = 0000 1101 */
-     int c = 0;
-     c = a & b;       /* 12 = 0000 1100 */
-     System.out.println("a & b = " + c );
- 
-     c = a | b;       /* 61 = 0011 1101 */
-     System.out.println("a | b = " + c );
- 
-     c = a ^ b;       /* 49 = 0011 0001 */
-     System.out.println("a ^ b = " + c );
- 
-     c = ~a;          /*-61 = 1100 0011 */
-     System.out.println("~a = " + c );
- 
-     c = a << 2;     /* 240 = 1111 0000 */
-     System.out.println("a << 2 = " + c );
- 
-     c = a >> 2;     /* 15 = 1111 */
-     System.out.println("a >> 2  = " + c );
-  
-     c = a >>> 2;     /* 15 = 0000 1111 */
-     System.out.println("a >>> 2 = " + c );
+int a = 60; /* 60 = 0011 1100 */ 
+int b = 13; /* 13 = 0000 1101 */
+int c = 0;
+c = a & b;       /* 12 = 0000 1100 */
+System.out.println("a & b = " + c );
+c = a | b;       /* 61 = 0011 1101 */
+System.out.println("a | b = " + c );
+c = a ^ b;       /* 49 = 0011 0001 */
+System.out.println("a ^ b = " + c );
+c = ~a;          /*-61 = 1100 0011 */
+System.out.println("~a = " + c );
+c = a << 2;     /* 240 = 1111 0000 */
+System.out.println("a << 2 = " + c );
+c = a >> 2;     /* 15 = 1111 */
+System.out.println("a >> 2  = " + c );
+c = a >>> 2;     /* 15 = 0000 1111 */
+System.out.println("a >>> 2 = " + c );
 ```
 
 **逻辑运算符**
@@ -906,21 +894,21 @@ A ^ B = 0011 0001
 !|称为逻辑非运算符。用来反转操作数的逻辑状态。如果条件为true，则逻辑非运算符将得到false。|！（A && B）为真。
 
 ```java
-     boolean a = true;
-     boolean b = false;
-     System.out.println("a && b = " + (a&&b));
-     System.out.println("a || b = " + (a||b) );
-     System.out.println("!(a && b) = " + !(a && b));
+boolean a = true;
+boolean b = false;
+System.out.println("a && b = " + (a&&b));
+System.out.println("a || b = " + (a||b) );
+System.out.println("!(a && b) = " + !(a && b));
 ```
 
 *逻辑运算符短路*
 
 当使用与逻辑运算符时，在两个操作数都为true时，结果才为true，但是当得到第一个操作为false时，其结果就必定是false，这时候就不会再判断第二个操作了。
 ```java
-        int a = 5;//定义一个变量；
-        boolean b = (a<4)&&(a++<10);
-        System.out.println("使用短路逻辑运算符的结果为"+b);
-        System.out.println("a的结果为"+a);
+int a = 5;//定义一个变量；
+boolean b = (a<4)&&(a++<10);
+System.out.println("使用短路逻辑运算符的结果为"+b);
+System.out.println("a的结果为"+a);
 ```
 
 **赋值运算符**
@@ -939,37 +927,37 @@ A ^ B = 0011 0001
 \|=|按位或赋值操作符|C | = 2等价于C = C | 2
 
 ```java
-        int a = 10;
-        int b = 20;
-        int c = 0;
-        c = a + b;
-        System.out.println("c = a + b = " + c );
-        c += a ;
-        System.out.println("c += a  = " + c );
-        c -= a ;
-        System.out.println("c -= a = " + c );
-        c *= a ;
-        System.out.println("c *= a = " + c );
-        a = 10;
-        c = 15;
-        c /= a ;
-        System.out.println("c /= a = " + c );
-        a = 10;
-        c = 15;
-        c %= a ;
-        System.out.println("c %= a  = " + c );
-        c <<= 2 ;
-        System.out.println("c <<= 2 = " + c );
-        c >>= 2 ;
-        System.out.println("c >>= 2 = " + c );
-        c >>= 2 ;
-        System.out.println("c >>= 2 = " + c );
-        c &= a ;
-        System.out.println("c &= a  = " + c );
-        c ^= a ;
-        System.out.println("c ^= a   = " + c );
-        c |= a ;
-        System.out.println("c |= a   = " + c );
+int a = 10;
+int b = 20;
+int c = 0;
+c = a + b;
+System.out.println("c = a + b = " + c );
+c += a ;
+System.out.println("c += a  = " + c );
+c -= a ;
+System.out.println("c -= a = " + c );
+c *= a ;
+System.out.println("c *= a = " + c );
+a = 10;
+c = 15;
+c /= a ;
+System.out.println("c /= a = " + c );
+a = 10;
+c = 15;
+c %= a ;
+System.out.println("c %= a  = " + c );
+c <<= 2 ;
+System.out.println("c <<= 2 = " + c );
+c >>= 2 ;
+System.out.println("c >>= 2 = " + c );
+c >>= 2 ;
+System.out.println("c >>= 2 = " + c );
+c &= a ;
+System.out.println("c &= a  = " + c );
+c ^= a ;
+System.out.println("c ^= a   = " + c );
+c |= a ;
+System.out.println("c |= a   = " + c );
 ```
 
 **条件运算符(?:)**
@@ -981,15 +969,14 @@ variable x = (expression) ? value if true : value if false
 ```
 
 ```java
-      int a , b;
-      a = 10;
-      // 如果 a 等于 1 成立，则设置 b 为 20，否则为 30
-      b = (a == 1) ? 20 : 30;
-      System.out.println( "Value of b is : " +  b );
- 
-      // 如果 a 等于 10 成立，则设置 b 为 20，否则为 30
-      b = (a == 10) ? 20 : 30;
-      System.out.println( "Value of b is : " + b );
+int a , b;
+a = 10;
+// 如果 a 等于 1 成立，则设置 b 为 20，否则为 30
+b = (a == 1) ? 20 : 30;
+System.out.println( "Value of b is : " +  b );
+// 如果 a 等于 10 成立，则设置 b 为 20，否则为 30
+b = (a == 10) ? 20 : 30;
+System.out.println( "Value of b is : " + b );
 ```
 
 **instanceof运算符**
