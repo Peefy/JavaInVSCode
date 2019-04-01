@@ -6195,14 +6195,14 @@ import java.util.ArrayList;
  
 public class Java8Tester {
    public static void main(String args[]){
-      List names = new ArrayList();
+      List<String> names = new ArrayList<>();
         
       names.add("Google");
       names.add("Runoob");
       names.add("Taobao");
       names.add("Baidu");
       names.add("Sina");
-        
+          
       names.forEach(System.out::println);
    }
 }
@@ -7166,6 +7166,10 @@ lang.io.PrintWriter:
 **Java 12**
 
 <img src="https://github.com/Peefy/JavaInVSCode/blob/master/img/java12.jpeg"></img>
+
+**其他Java知识点**
+
+[链接](https://github.com/Peefy/JavaInVSCode/blob/master/src/README_POINTS.md)
 
 **更多Java例程**
 
