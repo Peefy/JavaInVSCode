@@ -45,3 +45,91 @@
 *不同点*
 * HashMap实现了Cloneable和Serializable接口，而WeakHashMap没有
 * HashMap的“键”是“强引用(StrongReference)”，而WeakHashMap的键是“弱引用(WeakReference)”。
+
+**Java的初始化块、静态初始化块、构造函数的执行顺序及用途**
+
+1. 父类的静态初始化块
+2. 子类的静态初始化块
+3. 父类的初始化块
+4. 父类的构造函数
+5. 子类的初始化块
+6. 子类的构造函数
+
+```java
+class A {
+    static {
+        System.out.println("Static init A.");
+    }
+
+    {
+        System.out.println("Instance init A.");
+    }
+
+    A() {
+        System.out.println("Constructor A.");
+    }
+}
+
+class B extends A {
+    static {
+        System.out.println("Static init B.");
+    }
+
+    {
+        System.out.println("Instance init B.");
+    }
+
+    B() {
+        System.out.println("Constructor B.");
+    }
+}
+
+class C extends B {
+
+    static {
+        System.out.println("Static init C.");
+    }
+
+    {
+        System.out.println("Instance init C.");
+    }
+
+    C() {
+        System.out.println("Constructor C.");
+    }
+}
+
+public class Main {
+
+    static {
+        System.out.println("Static init Main.");
+    }
+
+    {
+        System.out.println("Instance init Main.");
+    }
+
+    public Main() {
+        System.out.println("Constructor Main.");
+    }
+
+    public static void main(String[] args) {
+        C c = new C();
+        //B b = new B();
+    }
+}
+
+```
+
+```java
+Static init Main.
+Static init A.
+Static init B.
+Static init C.
+Instance init A.
+Constructor A.
+Instance init B.
+Constructor B.
+Instance init C.
+Constructor C.
+```
