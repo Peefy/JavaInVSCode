@@ -765,3 +765,5 @@ java.util.Timer是一个工具类，可以用于安排一个线程在未来的�
 java.util.TimerTask是一个实现了Runnable接口的抽象类，我们需要去继承这个类来创建我们自己的定时任务并使用Timer去安排它的执行。 
 
 目前有开源的Qurtz可以用来创建定时任务。
+
+
