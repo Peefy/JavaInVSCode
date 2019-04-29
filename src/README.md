@@ -1,4 +1,7 @@
- String\[\] args和String args\[\]都可以运行，但推荐使用String\[\] args
+
+**程序入口main()方法**
+
+String\[\] args和String args\[\]都可以运行，但推荐使用String\[\] args
 javac 和 java javac 后面跟着的是java文件的文件名，例如 HelloWorld.java。 该命令用于将 java 源文件编译为 class 字节码文件，如： javac HelloWorld.java。
 注意：java命令后面不要加.class。
 
