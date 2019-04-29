@@ -2,9 +2,9 @@
 
 Cool! Java In VSCode.
 
-[Java笔记](https://github.com/Peefy/JavaInVSCode/tree/master/src/README_POINTS.md)
+[Java笔记](https://github.com/Peefy/JavaInVSCode/tree/master/src/README.md)
 
-[Java问答](https://github.com/Peefy/JavaInVSCode/tree/master/src/README.md)
+[Java问答](https://github.com/Peefy/JavaInVSCode/tree/master/src/README_POINTS.md)
 
 ## Thanks
 
