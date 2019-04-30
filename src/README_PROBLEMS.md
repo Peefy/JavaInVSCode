@@ -1,15 +1,57 @@
 
-1. Java对象重写equals时问为什么同时重写hashcode函数
+1. Java对象重写equals时为什么同时重写hashcode函数
+
+因为Object的equal方法默认是两个对象的引用的比较，意思就是指向同一内存,地址则相等，否则不相等；如果你现在需要利用对象里面的值来判断是否相等，则重载equal方法。 
+
+一般的地方不需要重载hashCode，只有当类需要放在HashTable、HashMap、HashSet等等hash结构的集合时才会 重载hashCode，那么为什么要重载hashCode呢？就HashMap来说，好比HashMap就是一个大内存块，里面有很多小内存块，小内存块 里面是一系列的对象，可以利用hashCode来查找小内存块hashCode%size(小内存块数量)，所以当equal相等时，hashCode必 须相等，而且如果是object对象，必须重载hashCode和equal方法。
+
+因为是按照hashCode来访问小内存块，所以hashCode必须相等。
+
+之所以hashCode相等，却可以equal不等，就比如ObjectA和ObjectB他们都有属性name，那么hashCode都以name计算，所以hashCode一样，但是两个对象属于不同类型，所以equal为false。
 
 2. 说一下map的分类和常见的情况
 
+* **HashMap**-最常用的Map，根据键的hashcode值来存储数据，根据键可以直接获得他的值（因为相同的键hashcode值相同，在地址为hashcode值的地方存储的就是值，所以根据键可以直接获得值），具有很快的访问速度，遍历时，取得数据的顺序完全是随机的，HashMap最多只允许一条记录的键为null，允许多条记录的值为null，HashMap不支持线程同步，即任意时刻可以有多个线程同时写HashMap，这样对导致数据不一致，如果需要同步，可以使用synchronziedMap的方法使得HashMap具有同步的能力或者使用concurrentHashMap
+* **HashTable**-与HashMap类似，不同的是，它不允许记录的键或值为空，支持线程同步，即任意时刻只能有一个线程写HashTable，因此也导致HashTable在写入时比较慢!
+* **LinkedHashMap**-是HahsMap的一个子类，但它保持了记录的插入顺序，遍历时先得到的肯定是先插入的，也可以在构造时带参数，按照应用次数排序，在遍历时会比HahsMap慢，不过有个例外，当HashMap的容量很大，实际数据少时，遍历起来会比LinkedHashMap慢（因为它是链啊），因为HashMap的遍历速度和它容量有关，LinkedHashMap遍历速度只与数据多少有关
+* **TreeMap**-实现了sortMap接口，能够把保存的记录按照键排序（默认升序），也可以指定排序比较器，遍历时得到的数据是排过序的
+
+什么情况用什么类型的Map：
+
+* 在Map中插入，删除，定位元素：`HashMap`
+* 要按照自定义顺序或自然顺序遍历：`TreeMap`
+* 要求输入顺序和输出顺序相同：`LinkedHashMap`
+
 3. Object若不重写hashCode()的话，hashCode()如何计算出来的？
+
+Object的hashcode()方法是本地方法，也就是用c语言或c++实现的，该方法直接返回对象的内存地址。
 
 4. Java中==运算符比较的是什么？
 
+* 对于`基本类型变量`==操作比较的是两个变量的值是否相等，对于`引用型变量`表示的是两个变量在堆中存储的地址是否相同，即栈中的内容是否相同。
+
+*注意：比较运算符==用于判断字符串的地址是否相同，即使字符串内容相同，但是对象不同，返回值仍是false。*
+
+* equals操作表示的两个变量是否是对同一个对象的引用，即堆中的内容是否相同。
+
 5. 若对一个类不重写，它的equals()方法是如何比较的？
 
+如果没有对equals方法进行重写，则比较的是引用类型的变量所指向的对象的地址；此时跟使用==没有任何区别
+
 6. java8新特性
+
+* **Lambda 表达式**  Lambda允许把函数作为一个方法的参数（函数作为参数传递进方法中。
+* **方法引用**  方法引用提供了非常有用的语法，可以直接引用已有Java类或对象（实例）的方法或构造器。与lambda联合使用，方法引用可以使语言的构造更紧凑简洁，减少冗余代码。
+方法引用使用一对冒号 :: 
+* **函数式接口**
+函数式接口(Functional Interface)就是一个有且仅有一个抽象方法，但是可以有多个非抽象方法的接口。
+* **默认方法** 默认方法就是一个在接口里面有了一个实现的方法。
+* **新工具** 新的编译工具，如：Nashorn引擎 jjs、 类依赖分析器jdeps。
+* **Stream API** 新添加的Stream API（java.util.stream） 把真正的函数式编程风格引入到Java中。
+* **Date Time API** 加强对日期与时间的处理。
+* **Optional 类** Optional 类已经成为 Java 8 类库的一部分，用来解决空指针异常。
+* **Nashorn, JavaScript 引擎** Java 8提供了一个新的Nashorn javascript引擎，它允许我们在JVM上运行特定的javascript应用。
+* **Base64**
 
 7. 说说Lamda表达式的优缺点。
 
