@@ -7172,7 +7172,9 @@ lang.io.PrintWriter:
 
 **其他Java知识点**
 
-[链接](https://github.com/Peefy/JavaInVSCode/blob/master/src/README_POINTS.md)
+[Java其他知识点](https://github.com/Peefy/JavaInVSCode/blob/master/src/README_POINTS.md)
+
+[Java问答](https://github.com/Peefy/JavaInVSCode/blob/master/src/README_PROBLEMS.md)
 
 **更多Java例程**
 
