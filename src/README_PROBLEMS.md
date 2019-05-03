@@ -990,39 +990,183 @@ final Node<K,V> getNode(int hash, Object key) {
 
 **63. 如果hashMap的key是一个自定义的类，怎么办？**
 
+如果hashMap的key是一个自定义的类，必须重写该类的hashcode()方法和equals（）方法
+
 **64. ArrayList和LinkedList的区别，如果一直在list的尾部添加元素，用哪个效率高？**
+
+ArrayList 底层数据结构是一中线性的数据结构 ArrayList 可以理解为动态数组，它的容量能动态增长，该容量是指用来存储列表的数组的大小，随着向ArrayList中不断添加元素，其容量也自动增长， ArrayList 容许包括null在内所有的元素 ArrayList 是List接口的非同步实现 ArrayList 是有序 LinkedList 基于链表的list接口的非同步实现 LinkedList 是容许包括null在内的所有元素 LinkedList 是有序的 ArrayList 访问任意位置，效率高 LinkedList 两端数据操作效率高
 
 **65. HashMap底层，负载因子，为啥是2^n？**
 
+*初始容量与负载因子性能调整*
+
+通常，默认负载因子（0.75）在时间和空间成本上寻求一种折中。负载因子过高虽然减少了空间开销，但同时也增加了查询成本（在大多数HashMap类的操作中，包括get和put操作，都反映了这一点）。在设置初始容量时应该考虑到映射中所需的条目数及其负载因子，以便最大限度的减少rehash操作次数。如果初始容量大于最大条目数除以加载因子，则不会发生rehash操作。
+
+如果很多映射关系要存储在HashMap实例中，则相对于按需执行自动的rehash操作以增大表的容量来说，使用足够大的初始容量创建它将使得映射关系能更有效的存储。
+
+如下为重建HashMap数据结构的代码：
+
 **66. ConcurrentHashMap锁加在了哪些地方？**
+
+ConcurrentHashMap是Java5中新增加的一个线程安全的Map集合。对于ConcurrentHashMap是如何提高其效率的，可能大多人只是知道它使用了多个锁代替HashTable中的单个锁，也就是锁分离技术（Lock Stripping）。实际上，ConcurrentHashMap对提高并发方面的优化，还有一些其它的技巧在里面（比如在get操作的时候它是否也使用了锁来保护？）。
+
+它把区间按照并发级别(concurrentLevel)，分成了若干个segment。默认情况下内部按并发级别为16来创建。对于每个segment的容量，默认情况也是16。当然并发级别(concurrentLevel)和每个段(segment)的初始容量都是可以通过构造函数设定的。
+
+```java
+static final class Segment<K,V> extends ReentrantLock implements Serializable 
+```
+
+Segment继承了ReentrantLock，表明每个segment都可以当做一个锁。这样对每个segment中的数据需要同步操作的话都是使用每个segment容器对象自身的锁来实现。只有对全局需要改变时锁定的是所有的segment。
+
+上面的这种做法，就称之为“分离锁（lock striping）”。
+
+分拆锁(lock spliting)就是若原先的程序中多处逻辑都采用同一个锁，但各个逻辑之间又相互独立，就可以拆(Spliting)为使用多个锁，每个锁守护不同的逻辑。
+分拆锁有时候可以被扩展，分成可大可小加锁块的集合，并且它们归属于相互独立的对象，这样的情况就是分离锁(lock striping)。（摘自《Java并发编程实践》）
 
 **67. TreeMap底层，红黑树原理？**
 
-**68. concurrenthashmap有啥优势，1.7，1.8区别？**
+TreeMap继承AbstractMap，实现NavigableMap、Cloneable、Serializable三个接口。其中AbstractMap表明TreeMap为一个Map即支持key-value的集合， NavigableMap（更多）则意味着它支持一系列的导航方法，具备针对给定搜索目标返回最接近匹配项的导航方法 。
+
+```java
+public class TreeMap<K,V>
+    extends AbstractMap<K,V>
+    implements NavigableMap<K,V>, Cloneable, java.io.Serializable
+```
+
+红黑树又称红-黑二叉树，它首先是一颗二叉树，它具体二叉树所有的特性。同时红黑树更是一颗自平衡的排序二叉树。
+
+我们知道一颗基本的二叉树他们都需要满足一个基本性质--即树中的任何节点的值大于它的左子节点，且小于它的右子节点。按照这个基本性质使得树的检索效率大大提高。我们知道在生成二叉树的过程是非常容易失衡的，最坏的情况就是一边倒（只有右/左子树），这样势必会导致二叉树的检索效率大大降低（O(n)），所以为了维持二叉树的平衡，大牛们提出了各种实现的算法，如：AVL，SBT，伸展树，TREAP ，红黑树等等。
+
+红黑树顾名思义就是节点是红色或者黑色的平衡二叉树，它通过颜色的约束来维持着二叉树的平衡。对于一棵有效的红黑树二叉树而言我们必须增加如下规则：
+
+* 每个节点都只能是红色或者黑色
+
+* 根节点是黑色
+
+* 每个叶节点（NIL节点，空节点）是黑色的。
+
+* 如果一个结点是红的，则它两个子节点都是黑的。也就是说在一条路径上不能出现相邻的两个红色结点。
+
+* 从任一节点到其每个叶子的所有路径都包含相同数目的黑色节点。
+
+**68. concurrenthashmap有啥优势**
+
+采取了分离锁，即在HashMap的每个桶上分离加锁，提高了并发的性能
 
 **69. ArrayList是否会越界？**
 
+ArrayList是线程不安全的，如使用多个线程向ArrayList中添加数据。越界异常基本都发生在数组扩容之时
+
 **70. 什么是TreeMap?**
+
+TreeMap继承AbstractMap，实现NavigableMap、Cloneable、Serializable三个接口。其中AbstractMap表明TreeMap为一个Map即支持key-value的集合， NavigableMap（更多）则意味着它支持一系列的导航方法，具备针对给定搜索目标返回最接近匹配项的导航方法 。
+
+```java
+public class TreeMap<K,V>
+    extends AbstractMap<K,V>
+    implements NavigableMap<K,V>, Cloneable, java.io.Serializable
+```
 
 **71. ConcurrentHashMap的原理是什么？**
 
+ConcurrentHashMap是Java5中新增加的一个线程安全的Map集合。对于ConcurrentHashMap是如何提高其效率的，可能大多人只是知道它使用了多个锁代替HashTable中的单个锁，也就是锁分离技术（Lock Stripping）。实际上，ConcurrentHashMap对提高并发方面的优化，还有一些其它的技巧在里面（比如在get操作的时候它是否也使用了锁来保护？）。
+
+它把区间按照并发级别(concurrentLevel)，分成了若干个segment。默认情况下内部按并发级别为16来创建。对于每个segment的容量，默认情况也是16。当然并发级别(concurrentLevel)和每个段(segment)的初始容量都是可以通过构造函数设定的。
+
+```java
+static final class Segment<K,V> extends ReentrantLock implements Serializable 
+```
+
+Segment继承了ReentrantLock，表明每个segment都可以当做一个锁。这样对每个segment中的数据需要同步操作的话都是使用每个segment容器对象自身的锁来实现。只有对全局需要改变时锁定的是所有的segment。
+
 **72. Java集合类框架的基本接口有哪些？**
+
+总共有两大接口：Collection 和Map ，一个元素集合，一个是键值对集合； 其中List和Set接口继承了Collection接口，一个是有序元素集合，一个是无序元素集合； 而ArrayList和 LinkedList 实现了List接口，HashSet实现了Set接口，这几个都比较常用； HashMap 和HashTable实现了Map接口，并且HashTable是线程安全的，但是HashMap性能更好；
 
 **73. 为什么集合类没有实现Cloneable和Serializable接口？**
 
+Java集合类里最基本的接口有：
+
+Collection：单列集合的根接口
+
+List：元素有序  可重复 
+
+ArrayList：类似一个长度可变的数组 。适合查询，不适合增删
+
+LinkedList：底层是双向循环链表。适合增删，不适合查询。
+
+Set：元素无序，不可重复
+
+HashSet：根据对象的哈希值确定元素在集合中的位置
+
+TreeSet: 以二叉树的方式存储元素，实现了对集合中的元素排序
+
+Map：双列集合的根接口，用于存储具有键（key）、值（value）映射关系的元素。
+
+HashMap：用于存储键值映射关系，不能出现重复的键key
+
+TreeMap：用来存储键值映射关系，不能出现重复的键key，所有的键按照二叉树的方式排列
+
+仅仅是接口不实现，留给具体实现类实现。
+
 **74. 什么是迭代器？**
+
+在Java中Iterator为一个接口，它只提供了迭代的基本规则。在JDK中它是这样定义的：对Collection进行迭代的迭代器。迭代器取代了Java Collection Framework中的Enumeration。迭代器与枚举有两点不同:
+
+迭代器在迭代期间可以从集合中移除元素。
+
+方法名得到了改进，Enumeration的方法名称都比较长。
+
+Java中还提供了一个Iterable接口，Iterable接口实现后的功能是‘返回’一个迭代器，我们常用的实现了该接口的子接口有:Collection<E>、List<E>、Set<E>等。该接口的iterator()方法返回一个标准的Iterator实现。实现Iterable接口允许对象成为Foreach语句的目标。就可以通过foreach语句来遍历你的底层序列。
 
 **75. Iterator和ListIterator的区别是什么？**
 
-**76. 快速失败(fail-fast)和安全失败(fail-safe)的区别是什么？**
+* Iterator可用来遍历Set和List集合，但是ListIterator只能用来遍历List
+* Iterator对集合只能是前向遍历，ListIterator既可以前向也可以后向
+* ListIterator实现了Iterator接口，并包含其他的功能，比如：增加元素，替换元素，获取前一个和后一个元素的索引，等等
 
-**77. HashMap和Hashtable有什么区别？**
+**76. Iterator快速失败(fail-fast)和安全失败(fail-safe)的区别是什么？**
+
+Iterator的安全失败是基于对底层集合做拷贝，因此，它不受源集合上修改的影响。java.util包下面的所有的集合类都是快速失败的，而java.util.concurrent包下面的所有的类都是安全失败的。快速失败的迭代器会抛出ConcurrentModificationException异常，而安全失败的迭代器永远不会抛出这样的异常。
+
+fail-fast机制，是一种错误检测机制。它只能被用来检测错误，因为JDK并不保证fail-fast机制一定会发生。若在多线程环境下使用fail-fast机制的集合，建议使用“java.util.concurrent包下的类”去取代“java.util包下的类”。
+
+**77. ArrayList和CopyOnWriteArrayList的区别**
+
+* 和ArrayList继承于AbstractList不同，CopyOnWriteArrayList没有继承于AbstractList，它仅仅只是实现了List接口
+* ArrayList的iterator()函数返回的Iterator是在AbstractList中实现的；而CopyOnWriteArrayList是自己实现Iterator
+* ArrayList的Iterator实现类中调用next()时，会“调用checkForComodification()比较‘expectedModCount’和‘modCount’的大小”；但是，CopyOnWriteArrayList的Iterator实现类中，没有所谓的checkForComodification()，更不会抛出ConcurrentModificationException异常！
 
 **78. ArrayList,Vector,LinkedList的存储性能和特性是什么？**
 
+ArrayList 和Vector他们底层的实现都是一样的，都是使用数组方式存储数据，此数组元素数大于实际存储的数据以便增加和插入元素，它们都允许直接按序号索引元素，但是插入元素要涉及数组元素移动等内存操作，所以索引数据快而插入数据慢。
+
+Vector中的方法由于添加了synchronized修饰，因此Vector是线程安全的容器，但性能上较ArrayList差，因此已经是Java中的遗留容器。
+
+LinkedList使用双向链表实现存储（将内存中零散的内存单元通过附加的引用关联起来，形成一个可以按序号索引的线性结构，这种链式存储方式与数组的连续存储方式相比，内存的利用率更高），按序号索引数据需要进行前向或后向遍历，但是插入数据时只需要记录本项的前后项即可，所以插入速度较快。            
+
+Vector属于遗留容器（Java早期的版本中提供的容器，除此之外，Hashtable、Dictionary、BitSet、Stack、Properties都是遗留容器），已经不推荐使用，但是由于ArrayList和LinkedListed都是非线程安全的，如果遇到多个线程操作同一个容器的场景，则可以通过工具类Collections中的synchronizedList方法将其转换成线程安全的容器后再使用（这是对装潢模式的应用，将已有对象传入另一个类的构造器中创建新的对象来增强实现）。
+
 **79. Collection 和 Collections的区别。**
 
+java.util.Collection 是一个集合接口（集合类的一个顶级接口）。它提供了对集合对象进行基本操作的通用接口方法。Collection接口在Java 类库中有很多具体的实现。Collection接口的意义是为各种具体的集合提供了最大化的统一操作方式，其直接继承接口有List与Set。
+
+Collections则是集合类的一个工具类/帮助类，其中提供了一系列静态方法，用于对集合中元素进行排序、搜索以及线程安全等各种操作。
+
 **80. 你所知道的集合类都有哪些？主要方法？**
+
+* 排序(Sort)：使用sort方法可以根据元素的自然顺序 对指定列表按升序进行排序。列表中的所有元素都必须实现 Comparable 接口。此列表内的所有元素都必须是使用指定比较器可相互比较的
+* 混排(Shuffling)：混排算法所做的正好与 sort 相反: 它打乱在一个 List 中可能有的任何排列的踪迹。也就是说，基于随机源的输入重排该 List, 这样的排列具有相同的可能性（假设随机源是公正的）。这个算法在实现一个碰运气的游戏中是非常有用的。例如，它可被用来混排代表一副牌的 Card 对象的一个 List 。另外，在生成测试案例时，它也是十分有用的。
+* 反转(Reverse)：使用Reverse方法可以根据元素的自然顺序 对指定列表按降序进行排序。
+* 替换所以的元素(Fill)：使用指定元素替换指定列表中的所有元素。
+* 拷贝(Copy)：用两个参数，一个目标 List 和一个源 List, 将源的元素拷贝到目标，并覆盖它的内容。目标 List 至少与源一样长。如果它更长，则在目标 List 中的剩余元素不受影响。Collections.copy(list,li): 前面一个参数是目标列表 ,后一个是源列表。
+* 返回Collections中最小元素(min)：根据指定比较器产生的顺序，返回给定 collection 的最小元素。collection 中的所有元素都必须是通过指定比较器可相互比较的。
+Collections.min(list)
+* 返回Collections中最小元素(max)：根据指定比较器产生的顺序，返回给定 collection 的最大元素。collection 中的所有元素都必须是通过指定比较器可相互比较的。
+* lastIndexOfSubList：返回指定源列表中最后一次出现指定目标列表的起始位置
+* IndexOfSubList：返回指定源列表中第一次出现指定目标列表的起始位置
+int count = Collections.indexOfSubList(list,li);
+* Rotate：根据指定的距离循环移动指定列表中的元素
 
 **81. List、Set、Map是否继承自Collection接口？**
 
