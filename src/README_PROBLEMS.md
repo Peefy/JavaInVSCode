@@ -1170,31 +1170,646 @@ int count = Collections.indexOfSubList(list,li);
 
 **81. List、Set、Map是否继承自Collection接口？**
 
+List，Set是，Map不是。
+
+**Collection**：List, LinkedList, ArrayList, Vector, Stack, Set
+
+**Map**：Hashtable, HashMap, WeakHashMap
+
 **82. List、Set、Map三个接口存取元素时，各有什么特点？**
+
+List与Set都是单列元素的集合，它们有一个功共同的父接口Collection。
+
+Set里面不允许有重复的元素，
+
+存元素：add方法有一个boolean的返回值，当集合中没有某个元素，此时add方法可成功加入该元素时，则返回true；当集合含有与某个元素equals相等的元素时，此时add方法无法加入该元素，返回结果为false。
+
+取元素：没法说取第几个，只能以Iterator接口取得所有的元素，再逐一遍历各个元素。
+
+List表示有先后顺序的集合，
+
+存元素：多次调用add(Object)方法时，每次加入的对象按先来后到的顺序排序，也可以插队，即调用add(int index,Object)方法，就可以指定当前对象在集合中的存放位置。
+
+取元素：方法1：Iterator接口取得所有，逐一遍历各个元素. 方法2：调用get(index i)来明确说明取第几个。
+
+Map是双列的集合，存放用put方法:put(obj key,obj value)，每次存储时，要存储一对key/value，不能存储重复的key，这个重复的规则也是按equals比较相等。
+
+取元素：用get(Object key)方法根据key获得相应的value。也可以获得所有的key的集合，还可以获得所有的value的集合，还可以获得key和value组合成的Map.Entry对象的集合。
 
 **83. 多线程中的i++线程安全吗？为什么？**
 
+不安全。请参考以下几种解决方案。
+
+1、对 i++ 操作的方法加同步锁，同时只能有一个线程执行 i++ 操作；
+
+2、使用支持原子性操作的类，如 java.util.concurrent.atomic.AtomicInteger，它使用的是 CAS 算法，效率优于第 1 种；
+
 **84. 如何线程安全的实现一个计数器？**
+
+AtomicInteger
+
+```java
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
+
+/**
+ * 一个循环计数器，每天从1开始计数，隔天重置为1。
+ * 可以创建一个该类的全局对象，然后每次使用时候调用其get方法即可，可以保证线程安全性
+ */
+public class CircularCounter {
+
+    private static final AtomicReferenceFieldUpdater<CircularCounter, AtomicInteger> valueUpdater =
+            AtomicReferenceFieldUpdater.newUpdater(CircularCounter.class, AtomicInteger.class, "value");
+    //保证内存可见性
+    private volatile String key;
+    //保证内存可见性
+    private volatile AtomicInteger value;
+    private static final String DATE_PATTERN = "yyyy-MM-dd";
+
+
+    public CircularCounter() {
+        /**
+         * 这里将key设置为getCurrentDateString() + "sssssssssss" 是为了测试addAndGet()方法中日期发生变化的情况
+         * 正常使用应该将key初始化为getCurrentDateString()
+         */
+        this.key = getCurrentDateString() + "sssssssssss";
+        this.value = new AtomicInteger(0);
+    }
+
+
+    /**
+     * 获取计数器加1以后的值
+     *
+     * @return
+     */
+    public Integer addAndGet() {
+
+        AtomicInteger oldValue = value;
+        AtomicInteger newInteger = new AtomicInteger(0);
+
+        int newVal = -1;
+        String newDateStr = getCurrentDateString();
+        //日期一致，计数器加1后返回
+        if (isDateEquals(newDateStr)) {
+            newVal = add(1);
+            return newVal;
+        }
+
+        //日期不一致，保证有一个线程重置技术器
+        reSet(oldValue, newInteger, newDateStr);
+        this.key = newDateStr;
+        //重置后加1返回
+        newVal = add(1);
+        return newVal;
+    }
+
+    /**
+     * 获取计数器的当前值
+     * @return
+     */
+    public Integer get() {
+        return value.get();
+    }
+
+    /**
+     * 判断当前日期与老的日期（也即key成员变量记录的值）是否一致
+     *
+     * @return
+     */
+    private boolean isDateEquals(String newDateStr) {
+        String oldDateStr = key;
+        if (!isBlank(oldDateStr) && oldDateStr.equals(newDateStr)) {
+            return true;
+        }
+
+        return false;
+    }
+
+
+    /**
+     * 如果日期发生变化，重置计数器，也即将key设置为当前日期，并将value重置为0，重置后才能接着累加，
+     */
+    private void reSet(AtomicInteger oldValue, AtomicInteger newValue, String newDateStr) {
+        if(valueUpdater.compareAndSet(this, oldValue, newValue)) {
+            System.out.println("线程" + Thread.currentThread().getName() + "发现日期发生变化");
+        }
+    }
+
+    /**
+     * 获取当前日期字符串
+     *
+     * @return
+     */
+    private String getCurrentDateString() {
+        Date date = new Date();
+        String newDateStr = new SimpleDateFormat(DATE_PATTERN).format(date);
+        return newDateStr;
+    }
+
+    /**
+     * 计数器的值加1。采用CAS保证线程安全性
+     *
+     * @param increment
+     */
+    private int add(int increment) {
+       return value.addAndGet(increment);
+    }
+
+    public static boolean isBlank(CharSequence cs) {
+        int strLen;
+        if(cs != null && (strLen = cs.length()) != 0) {
+            for(int i = 0; i < strLen; ++i) {
+                if(!Character.isWhitespace(cs.charAt(i))) {
+                    return false;
+                }
+            }
+
+            return true;
+        } else {
+            return true;
+        }
+    }
+
+    public static void test() {
+        CircularCounter c = new CircularCounter();
+        AtomicInteger count = new AtomicInteger(0);
+        List<Thread> li = new ArrayList<Thread>();
+        int size = 10;
+        CountDownLatch latch1 = new CountDownLatch(1);
+        CountDownLatch latch2 = new CountDownLatch(size);
+        for (int i = 0; i < size; i++) {
+            Thread t = new Thread(new CounterRunner(c, latch1, latch2, count), "thread-" + i);
+            li.add(t);
+            t.start();
+        }
+        System.out.println("start");
+        latch1.countDown();
+
+        try {
+            latch2.await();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        System.out.println(count.get());
+        System.out.println(c.get());
+        if(count.get() == c.get()) {
+            System.out.println("该计数器是线程安全的！！！");
+        }
+
+    }
+
+    public static void main(String... args) {
+        for(int i = 0; i < 15; i++) {
+            test();
+        }
+    }
+
+
+}
+
+
+/**
+ * 测试使用的Runnable对象
+ */
+class CounterRunner implements Runnable {
+    private CircularCounter counter;
+    private CountDownLatch latch1;
+    private CountDownLatch latch2;
+    private AtomicInteger count;
+
+    public CounterRunner(CircularCounter counter, CountDownLatch latch1, CountDownLatch latch2, AtomicInteger count) {
+        this.latch1 = latch1;
+        this.latch2 = latch2;
+        this.counter = counter;
+        this.count = count;
+    }
+
+    @Override
+    public void run() {
+
+        try {
+            latch1.await();
+            System.out.println("****************");
+
+            for (int i = 0; i < 20; i++) {
+                counter.addAndGet();
+                count.addAndGet(1);
+            }
+            latch2.countDown();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
 
 **85. 多线程同步的方法**
 
+* 同步方法：即有synchronized关键字修饰的方法。 由于java的每个对象都有一个内置锁，当用此关键字修饰方法时， 内置锁会保护整个方法。在调用该方法前，需要获得内置锁，否则就处于阻塞状态。注： synchronized关键字也可以修饰静态方法，此时如果调用该静态方法，将会锁住整个类。
+* 同步代码块：即有synchronized关键字修饰的语句块。 被该关键字修饰的语句块会自动被加上内置锁，从而实现同步
+```java
+synchronized(object){ 
+}
+```
+* wait与notify:wait():使一个线程处于等待状态，并且释放所持有的对象的lock。sleep():使一个正在运行的线程处于睡眠状态，是一个静态方法，调用此方法要捕捉InterruptedException异常。notify():唤醒一个处于等待状态的线程，注意的是在调用此方法的时候，并不能确切的唤醒某一个等待状态的线程，而是由JVM确定唤醒哪个线程，而且不是按优先级。Allnotity():唤醒所有处入等待状态的线程，注意并不是给所有唤醒线程一个对象的锁，而是让它们竞争。
+* 使用特殊域变量(volatile)实现线程同步
+* ReentrantLock类是可重入、互斥、实现了Lock接口的锁，它与使用synchronized方法和快具有相同的基本行为和语义，并且扩展了其能力。ReenreantLock类的常用方法有：lock(),unlock()
+* 如果使用ThreadLocal管理变量，则每一个使用该变量的线程都获得该变量的副本，副本之间相互独立，这样每一个线程都可以随意修改自己的变量副本，而不会对其他线程产生影响。
+* 使用阻塞队列实现线程同步:BlockingQueue<E>定义了阻塞队列的常用方法，尤其是三种添加元素的方法，我们要多加注意，当队列满时：
+* 原子元素：原子操作就是指将读取变量值、修改变量值、保存变量值看成一个整体来操作即-这几种行为要么同时完成，要么都不完成。在java的util.concurrent.atomic包中提供了创建了原子类型变量的工具类，使用该类可以简化线程同步。其中AtomicInteger 表可以用原子方式更新int的值，可用在应用程序中(如以原子方式增加的计数器)，但不能用于替换Integer；
+
 **86. 介绍一下生产者消费者模式？**
 
-**87. 线程，进程，然后线程创建有很大开销，怎么优化？**
+生产者消费者模型具体来讲，就是在一个系统中，存在生产者和消费者两种角色，他们通过内存缓冲区进行通信，生产者生产消费者需要的资料，消费者把资料做成产品。生产消费者模式如下图。生产者是一堆线程，消费者是另一堆线程，内存缓冲区可以使用List数组队列，数据类型只需要定义一个简单的类就好。关键是如何处理多线程之间的协作。这其实也是多线程通信的一个范例。在这个模型中，最关键就是内存缓冲区为空的时候消费者必须等待，而内存缓冲区满的时候，生产者必须等待。其他时候可以是个动态平衡。值得注意的是多线程对临界区资源的操作时候必须保证在读写中只能存在一个线程，所以需要设计锁的策略。
+
+```java
+
+import java.util.List;
+
+/**
+ * 消费者
+ * 
+ * @author ctk
+ *
+ */
+public class Consumer implements Runnable {
+    private List<PCData> queue;
+
+    public Consumer(List<PCData> queue) {
+        this.queue = queue;
+    }
+
+    @Override
+    public void run() {
+        try {
+            while (true) {
+                if (Thread.currentThread().isInterrupted())
+                    break;
+                PCData data = null;
+                synchronized (queue) {
+                    if (queue.size() == 0) {
+                        queue.wait();
+                        queue.notifyAll();
+                    }
+                    data = queue.remove(0);
+                }
+                System.out.println(
+                        Thread.currentThread().getId() + " 消费了:" + data.get() + " result:" + (data.get() * data.get()));
+                Thread.sleep(1000);
+            }
+
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+}
+
+import java.util.List;
+import java.util.Random;
+
+/**
+ * 生产者
+ * 
+ * @author MacBook
+ *
+ */
+public class Producer implements Runnable {
+    private List<PCData> queue;
+    private int length;
+
+    public Producer(List<PCData> queue, int length) {
+        this.queue = queue;
+        this.length = length;
+    }
+
+    @Override
+    public void run() {
+        try {
+            while (true) {
+
+                if (Thread.currentThread().isInterrupted())
+                    break;
+                Random r = new Random();
+                long temp = r.nextInt(100);
+                System.out.println(Thread.currentThread().getId() + " 生产了：" + temp);
+                PCData data = new PCData();
+                data.set(temp);
+                synchronized (queue) {
+                    if (queue.size() >= length) {
+                        queue.notifyAll();
+                        queue.wait();
+                    } else
+                        queue.add(data);
+                }
+                Thread.sleep(1000);
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+}
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+public class Main {
+    public static void main(String[] args) {
+        List<PCData> queue = new ArrayList<PCData>();
+        int length = 10;
+        Producer p1 = new Producer(queue,length);
+        Producer p2 = new Producer(queue,length);
+        Producer p3 = new Producer(queue,length);
+        Consumer c1 = new Consumer(queue);
+        Consumer c2 = new Consumer(queue);
+        Consumer c3 = new Consumer(queue);
+        ExecutorService service = Executors.newCachedThreadPool();
+        service.execute(p1);
+        service.execute(p2);
+        service.execute(p3);
+        service.execute(c1);
+        service.execute(c2);
+        service.execute(c3); 
+    }
+}
+
+/**
+ * 基本数据类型
+ * @author ctk
+ *
+ */
+public class PCData {
+    private long value;
+    public void set(long value){
+        this.value = value;
+        
+    }
+    public long get(){
+        return value;
+    }
+}
+```
+
+**87. 然后线程创建有很大开销，怎么优化？**
+
+线程池，预先创建好一定的线程，根据任务的不同，使用现有的线程执行不同的任务
 
 **88. 线程池运行流程，参数，策略**
 
-**89. 讲一下AQS吧**
+首先判断核心线程池里的线程是否都在执行任务，如果不是则直接从核心线程池中创建一个线程来执行，如果都在忙则判断任务队列是否也满了，没满的话将任务放进去等待执行，满了就判断线程池的全部线程是否都在忙，如果都在忙就交给饱和策略来处理，否则就创建一个线程来帮助核心线程处理任务。
+
+重要参数：   
+
+* CorePoolSize:核心线程池大小
+* MaximumPoolSize：最大线程数
+* WorkQueue：任务缓存队列
+* ThreadFactory：线程工厂，主要用来创建线程
+* Handler：饱和处理策略
+
+饱和处理策略：
+
+* ThreadPoolExecutor.AbortPolicy:丢弃任务并抛出RejectedExecutionException异常。
+* ThreadPoolExecutor.DiscardPolicy：也是丢弃任务，但是不抛出异常。
+* ThreadPoolExecutor.DiscardOldestPolicy：丢弃队列最前面的任务，然后重新尝试执行任务（重复此过程）
+* ThreadPoolExecutor.CallerRunsPolicy：由调用线程处理该任务
+
+**89. Java AQS**
+
+AQS是AbustactQueuedSynchronizer的简称，它是一个Java提高的底层同步工具类，用一个int类型的变量表示同步状态，并提供了一系列的CAS操作来管理这个同步状态。AQS的主要作用是为Java中的并发同步组件提供统一的底层支持，例如ReentrantLock，CountdowLatch就是基于AQS实现的，用法是通过继承AQS实现其模版方法，然后将子类作为同步组件的内部类。
+
+*同步队列*
+
+同步队列是AQS很重要的组成部分，它是一个双端队列，遵循FIFO原则，主要作用是用来存放在锁上阻塞的线程，当一个线程尝试获取锁时，如果已经被占用，那么当前线程就会被构造成一个Node节点假如到同步队列的尾部，队列的头节点是成功获取锁的节点，当头节点线程是否锁时，会唤醒后面的节点并释放当前头节点的引用。
+
+*独占锁的获取和释放流程*
+
+获取
+* 调用入口方法acquire(arg)
+* 调用模版方法tryAcquire(arg)尝试获取锁，若成功则返回，若失败则走下一步
+* 将当前线程构造成一个Node节点，并利用CAS将其加入到同步队列到尾部，然后该节点对应到线程进入自旋状态
+* 自旋时，首先判断其前驱节点释放为头节点&是否成功获取同步状态，两个条件都成立，则将当前线程的节点设置为头节点，如果不是，则利用LockSupport.park(this)将当前线程挂起 ,等待被前驱节点唤醒
+
+释放
+* 调用入口方法release(arg)
+* 调用模版方法tryRelease(arg)释放同步状态
+* 获取当前节点的下一个节点
+* 利用`LockSupport.unpark(currentNode.next.thread)`唤醒后继节点（接获取的第四步） 
+
+*共享锁的获取和释放流程*
+
+获取
+* 调用acquireShared(arg)入口方法
+* 进入tryAcquireShared(arg)模版方法获取同步状态，如果返返回值>=0，则说明同步状态(state)有剩余，获取锁成功直接返回
+* 如果tryAcquireShared(arg)返回值<0，说明获取同步状态失败，向队列尾部添加一个共享类型的Node节点，随即该节点进入自旋状态
+* 自旋时，首先检查前驱节点释放为头节点&tryAcquireShared()是否>=0(即成功获取同步状态)
+* 如果是，则说明当前节点可执行，同时把当前节点设置为头节点，并且唤醒所有后继节点
+* 如果否，则利用`LockSupport.unpark(this)`挂起当前线程，等待被前驱节点唤醒
+
+释放
+* 调用releaseShared(arg)模版方法释放同步状态
+* 如果释放成，则遍历整个队列，利用`LockSupport.unpark(nextNode.thread)`唤醒所有后继节点 
+
+*独占锁和共享锁在实现上的区别*
+
+* 独占锁的同步状态值为1，即同一时刻只能有一个线程成功获取同步状态
+* 共享锁的同步状态>1，取值由上层同步组件确定
+* 独占锁队列中头节点运行完成后释放它的直接后继节点
+* 共享锁队列中头节点运行完成后释放它后面的所有节点
+* 共享锁中会出现多个线程（即同步队列中的节点）同时成功获取同步状态的情况
+
+*重入锁*
+
+重入锁指的是当前线成功获取锁后，如果再次访问该临界区，则不会对自己产生互斥行为。Java中对`ReentrantLock`和`synchronized`都是可重入锁，`synchronized`由jvm实现可重入即使，`ReentrantLock`都可重入性基于AQS实现。
+
+同时，`ReentrantLock`还提供`公平锁`和`非公平锁`两种模式。
+
+非公平锁的实现逻辑
+```java
+final boolean nonfairTryAcquire(int acquires) {
+    //获取当前线程
+    final Thread current = Thread.currentThread();
+    //通过AQS获取同步状态
+    int c = getState();
+    //同步状态为0，说明临界区处于无锁状态，
+    if (c == 0) {
+        //修改同步状态，即加锁
+        if (compareAndSetState(0, acquires)) {
+            //将当前线程设置为锁的owner
+            setExclusiveOwnerThread(current);
+            return true;
+        }
+    }
+    //如果临界区处于锁定状态，且上次获取锁的线程为当前线程
+    else if (current == getExclusiveOwnerThread()) {
+        //则递增同步状态
+        int nextc = c + acquires;
+        if (nextc < 0) // overflow
+            throw new Error("Maximum lock count exceeded");
+            setState(nextc);
+            return true;
+    }
+    return false;
+}
+```
+公平锁的实现逻辑
+```java
+protected final boolean tryAcquire(int acquires) {
+    final Thread current = Thread.currentThread();
+    int c = getState();
+    if (c == 0) {
+        //此处为公平锁的核心，即判断同步队列中当前节点是否有前驱节点
+        if (!hasQueuedPredecessors() &&
+            compareAndSetState(0, acquires)) {
+            setExclusiveOwnerThread(current);
+            return true;
+        }
+    }
+    else if (current == getExclusiveOwnerThread()) {
+        int nextc = c + acquires;
+        if (nextc < 0)
+            throw new Error("Maximum lock count exceeded");
+        setState(nextc);
+        return true;
+    }
+    return false;
+}
+```
 
 **90. 创建线程的方法，哪个更好，为什么？**
 
+需要从Java.lang.Thread类派生一个新的线程类，重载它的run()方法； 实现Runnalbe接口，重载Runnalbe接口中的run()方法。 实现Runnalbe接口更好，使用实现Runnable接口的方式创建的线程可以处理同一资源，从而实现资源的共享.
+
+线程池：可重复利用线程，节约资源，4种基本线程池，或者自定义线程池
+```java
+public ThreadPoolExecutor(int corePoolSize,//线程池中保留数量
+   int maximumPoolSize,//线程池中最大数量
+     long keepAliveTime,//空闲线程保留时间
+     TimeUnit unit,//保留时间单位
+    BlockingQueue<Runnable> workQueue,//保存任务队列
+   ThreadFactory threadFactory,//创建线程的工厂
+   RejectedExecutionHandler handler) {//当前线程池中线程数量>maximumPoolSize，再次添加线程时执行的策略，默认为拒绝
+```
+
 **91. Java中有几种方式启动一个线程？**
+
+* 继承Thread类
+* 实现Runnable接口
 
 **92. Java中有几种线程池？**
 
+* **newCachedThreadPool**-创建一个可缓存线程池，如果线程池长度超过处理需要，可灵活回收空闲线程，若无可回收，则新建线程。
+
+```java
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+public class ThreadPoolExecutorTest {
+ public static void main(String[] args) {
+  ExecutorService cachedThreadPool = Executors.newCachedThreadPool();
+  for (int i = 0; i < 10; i++) {
+   final int index = i;
+   try {
+    Thread.sleep(index * 1000);
+   } catch (InterruptedException e) {
+    e.printStackTrace();
+   }
+   cachedThreadPool.execute(new Runnable() {
+    public void run() {
+     System.out.println(index);
+    }
+   });
+  }
+ }
+}
+```
+
+* **newFixedThreadPool**-创建一个指定工作线程数量的线程池。每当提交一个任务就创建一个工作线程，如果工作线程数量达到线程池初始的最大数，则将提交的任务存入到池队列中。
+
+```java
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+public class ThreadPoolExecutorTest {
+ public static void main(String[] args) {
+  ExecutorService fixedThreadPool = Executors.newFixedThreadPool(3);
+  for (int i = 0; i < 10; i++) {
+   final int index = i;
+   fixedThreadPool.execute(new Runnable() {
+    public void run() {
+     try {
+      System.out.println(index);
+      Thread.sleep(2000);
+     } catch (InterruptedException e) {
+      e.printStackTrace();
+     }
+    }
+   });
+  }
+ }
+}
+```
+
+* **newSingleThreadExecutor**-创建一个单线程化的Executor，即只创建唯一的工作者线程来执行任务，它只会用唯一的工作线程来执行任务，保证所有任务按照指定顺序(FIFO, LIFO, 优先级)执行。如果这个线程异常结束，会有另一个取代它，保证顺序执行。单工作线程最大的特点是可保证顺序地执行各个任务，并且在任意给定的时间不会有多个线程是活动的。
+
+```java
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+public class ThreadPoolExecutorTest {
+ public static void main(String[] args) {
+  ExecutorService singleThreadExecutor = Executors.newSingleThreadExecutor();
+  for (int i = 0; i < 10; i++) {
+   final int index = i;
+   singleThreadExecutor.execute(new Runnable() {
+    public void run() {
+     try {
+      System.out.println(index);
+      Thread.sleep(2000);
+     } catch (InterruptedException e) {
+      e.printStackTrace();
+     }
+    }
+   });
+  }
+ }
+}
+```
+
+* **newScheduleThreadPool**-创建一个定长的线程池，而且支持定时的以及周期性的任务执行，支持定时及周期性任务执行。
+
+```java
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+public class ThreadPoolExecutorTest {
+ public static void main(String[] args) {
+  ScheduledExecutorService scheduledThreadPool = Executors.newScheduledThreadPool(5);
+  scheduledThreadPool.schedule(new Runnable() {
+   public void run() {
+    System.out.println("delay 3 seconds");
+   }
+  }, 3, TimeUnit.SECONDS);
+ }
+}
+```
+
+
 **93. 线程池有什么好处？**
 
-**94. cyclicbarrier和countdownlatch的区别**
+除了创建和销毁线程的开销之外，活动的线程也消耗系统资源。在一个 JVM 里创建太多的线程可能会导致系统由于过度消耗内存而用完内存或“切换过度”。为了防止资源不足，服务器应用程序需要一些办法来限制任何给定时刻处理的请求数目。
+
+线程池为线程生命周期开销问题和资源不足问题提供了解决方案。通过对多个任务重用线程，线程创建的开销被分摊到了多个任务上。其好处是，因为在请求到达时线程已经存在，所以无意中也消除了线程创建所带来的延迟。这样，就可以立即为请求服务，使应用程序响应更快。而且，通过适当地调整线程池中的线程数目，也就是当请求的数目超过某个阈值时，就强制其它任何新到的请求一直等待，直到获得一个线程来处理为止，从而可以防止资源不足。
+
+**94. CyclicBarrier和CountDownLatch的区别**
+
+CountDownLatch和CyclicBarrier都是java.util.concurrent包下面的多线程工具类。
+
+从字面上理解，CountDown表示减法计数，Latch表示门闩的意思，计数为0的时候就可以打开门闩了。Cyclic Barrier表示循环的障碍物。两个类都含有这一个意思：对应的线程都完成工作之后再进行下一步动作，也就是大家都准备好之后再进行下一步。然而两者最大的区别是，进行下一步动作的动作实施者是不一样的。这里的“动作实施者”有两种，一种是主线程（即执行main函数），另一种是执行任务的其他线程，后面叫这种线程为“其他线程”，区分于主线程。对于CountDownLatch，当计数为0的时候，下一步的动作实施者是main函数；对于CyclicBarrier，下一步动作实施者是“其他线程”。
+
+总结：CountDownLatch和CyclicBarrier都有让多个线程等待同步然后再开始下一步动作的意思，但是CountDownLatch的下一步的动作实施者是主线程，具有不可重复性；而CyclicBarrier的下一步动作实施者还是“其他线程”本身，具有往复多次实施动作的特点。
 
 **95. 如何理解Java多线程回调方法？**
 
