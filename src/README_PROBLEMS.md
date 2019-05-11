@@ -1876,51 +1876,343 @@ public ThreadPoolExecutor(int corePoolSize,//线程池中保留数量
 
 **100. 在监视器(Monitor)内部，是如何做线程同步的？程序应该做哪种级别的同步？**
 
+监视器和锁在Java虚拟机中是一块使用的。监视器监视一块同步代码块，确保一次只有一个线程执行同步代码块。每一个监视器都和一个对象引用相关联。线程在获取锁之前不允许执行同步代码。
+
+在 java 虚拟机中, 每个对象( Object 和 class )通过某种逻辑关联监视器,每个监视器和一个对象引用相关联, 为了实现监视器的互斥功能, 每个对象都关联着一把锁.
+
+一旦方法或者代码块被 synchronized 修饰, 那么这个部分就放入了监视器的监视区域, 确保一次只能有一个线程执行该部分的代码, 线程在获取锁之前不允许执行该部分的代码
+
+另外 java 还提供了显式监视器( Lock )和隐式监视器( synchronized )两种锁方案
+
 **101. sleep() 和 wait() 有什么区别？**
+
+对于sleep()方法，我们首先要知道该方法是属于Thread类中的。而wait()方法，则是属于Object类中的。
+
+sleep()方法导致了程序暂停执行指定的时间，让出cpu该其他线程，但是他的监控状态依然保持者，当指定的时间到了又会自动恢复运行状态
+
+在调用sleep()方法的过程中，线程不会释放对象锁。
+
+而当调用wait()方法的时候，线程会放弃对象锁，进入等待此对象的等待锁定池，只有针对此对象调用notify()方法后本线程才进入对象锁定池准备
 
 **102. 同步和异步有何异同，在什么情况下分别使用他们？举例说明。**
 
+如果数据将在线程间共享。例如正在写的数据以后可能被另一个线程读到，或者正在读的数据可能已经被另一个线程写过了，那么这些数据就是共享数据，必须进行同步存取。
+
+当应用程序在对象上调用了一个需要花费很长时间来执行的方法，并且不希望让程序等待方法的返回时，就应该使用异步编程，在很多情况下采用异步途径往往更有效率。
+
 **103. 设计4个线程，其中两个线程每次对j增加1，另外两个线程对j每次减少1。使用内部类实现线程，对j增减的时候没有考虑顺序问题。**
+
+非线程安全的实现方式，建立四个线程即可，线程安全的方式可以使用`AtomicInteger`
+
+```java
+public class ManyThreads {
+
+    private int j;
+
+    public static void main(String[] args) {
+        // TODO Auto-generated method stub
+        ManyThreads many = new ManyThreads();
+        Inc inc = many.new Inc();
+        Dec dec = many.new Dec();
+        for (int i = 0; i < 2; i++) {
+            Thread t = new Thread(inc);
+            t.start();
+            t = new Thread(dec);
+            t.start();
+        }
+    }
+
+    private synchronized void inc() {
+        j++;
+        System.out.println(Thread.currentThread().getName() + "inc" + j);
+    }
+
+    private synchronized void dec() {
+        j--;
+        System.out.println(Thread.currentThread().getName() + "dec" + j);
+    }
+
+    class Inc implements Runnable {
+        @Override
+        public void run() {
+            // TODO Auto-generated method stub
+            for (int i = 0; i < 20; i++) {
+                inc();
+            }
+        }
+    }
+
+    class Dec implements Runnable {
+        @Override
+        public void run() {
+            // TODO Auto-generated method stub
+            for (int i = 0; i < 20; i++) {
+                dec();
+            }
+        }
+    }
+}
+```
 
 **104. 启动一个线程是用run()还是start()?**
 
+使用`start()`方法，`run()`方法是`Thread`类的一个方法，当线程start()方法被调用后，异步执行`Thread`类的`run()`方法
+
 **105. 请说出你所知道的线程同步的方法**
+
+* **同步方法**-即有`synchronized`关键字修饰的方法。由于java的每个对象都有一个内置锁，当用此关键字修饰方法时， 内置锁会保护整个方法。在调用该方法前，需要获得内置锁，否则就处于阻塞状态。
+* **同步代码块**-即有synchronized关键字修饰的语句块。被该关键字修饰的语句块会自动被加上内置锁，从而实现同步
+* **使用特殊域变量(volatile)实现线程同步**-
+* **使用重入锁实现线程同步**-
+* ****-java.util.concurrent包来支持同步。ReentrantLock类是可重入、互斥、实现了Lock接口的锁， 
+* **使用局部变量实现线程同步**-如果使用ThreadLocal管理变量，则每一个使用该变量的线程都获得该变量的副本，副本之间相互独立，这样每一个线程都可以随意修改自己的变量副本，而不会对其他线程产生影响。
+* **使用阻塞队列实现线程同步**-使用`LinkedBlockingQueue<E>`来实现线程的同步。LinkedBlockingQueue<E>是一个基于已连接节点的，范围任意的blocking queue。队列是先进先出的顺序（FIFO），
+* **使用原子变量实现线程同步**-在java的util.concurrent.atomic包中提供了创建了原子类型变量的工具类，其中AtomicInteger 表可以用原子方式更新int的值，可用在应用程序中(如以原子方式增加的计数器)，但不能用于替换Integer；可扩展Number，允许那些处理机遇数字类的工具和实用工具进行统一访问。
 
 **106. 多线程有几种实现方法,都是什么?同步有几种实现方法,都是什么?**
 
-**107. java中有几种方法可以实现一个线程？用什么关键字修饰同步方法? stop()和suspend()方法为何不推荐使用？**
+*多线程的实现方法*
+
+* **继承Thread类创建线程**
+* **实现Runnable接口创建线程**
+* **实现Callable接口通过FutureTask包装器来创建Thread线程**
+* **使用ExecutorService、Callable、Future实现有返回结果的线程**
+* **线程池ThreadPoolExecutor**
+
+*线程同步的方法*
+
+* **同步方法**-即有`synchronized`关键字修饰的方法。由于java的每个对象都有一个内置锁，当用此关键字修饰方法时， 内置锁会保护整个方法。在调用该方法前，需要获得内置锁，否则就处于阻塞状态。
+* **同步代码块**-即有synchronized关键字修饰的语句块。被该关键字修饰的语句块会自动被加上内置锁，从而实现同步
+* **使用特殊域变量(volatile)实现线程同步**-
+* **使用重入锁实现线程同步**-
+* ****-java.util.concurrent包来支持同步。ReentrantLock类是可重入、互斥、实现了Lock接口的锁， 
+* **使用局部变量实现线程同步**-如果使用ThreadLocal管理变量，则每一个使用该变量的线程都获得该变量的副本，副本之间相互独立，这样每一个线程都可以随意修改自己的变量副本，而不会对其他线程产生影响。
+* **使用阻塞队列实现线程同步**-使用`LinkedBlockingQueue<E>`来实现线程的同步。LinkedBlockingQueue<E>是一个基于已连接节点的，范围任意的blocking queue。队列是先进先出的顺序（FIFO），
+* **使用原子变量实现线程同步**-在java的util.concurrent.atomic包中提供了创建了原子类型变量的工具类，其中AtomicInteger 表可以用原子方式更新int的值，可用在应用程序中(如以原子方式增加的计数器)，但不能用于替换Integer；可扩展Number，允许那些处理机遇数字类的工具和实用工具进行统一访问。
+
+**107. java线程stop()和suspend()方法为何不推荐使用？**
+
+对使用stop()，是因为它不安全。它会解除由线程获取的所有锁定，当在一个线程对象上调用stop()方法时，这个线程对象所运行的线程就会立即停止，
+
+suspend()方法容易发生死锁。调用suspend()的时候，目标线程会停下来，但却仍然持有在这之前获得的锁定。此时，其他任何线程都不能访问锁定的资源，除非被”挂起”的线程恢复运行。
 
 **108. 线程的sleep()方法和yield()方法有什么区别？**
 
+* sleep()方法给其他线程运行机会时不考虑线程的优先级，因此会给低优先级的线程以运行的机会；yield()方法只会给相同优先级或更高优先级的线程以运行的机会；
+* 线程执行sleep()方法后转入阻塞（blocked）状态，而执行yield()方法后转入就绪（ready）状态；
+* sleep()方法声明抛出InterruptedException，而yield()方法没有声明任何异常；
+* sleep()方法比yield()方法（跟操作系统CPU调度相关）具有更好的可移植性。
+
 **109. 当一个线程进入一个对象的synchronized方法A之后，其它线程是否可进入此对象的synchronized方法B？**
+
+是不能的,其他线程只能访问该对象的非同步方法,同步方法则不能进入;因为非静态方法上的synchronized修饰符要求执行方法时要获得对象的锁,如果已经进入A方法,说明对象锁已经被取
 
 **110. 请说出与线程同步以及线程调度相关的方法。**
 
+* **wait()**-使一个线程处于等待（阻塞）状态，并且释放所持有的对象的锁；
+* **sleep()**-使一个正在运行的线程处于睡眠状态，是一个静态方法，调用此方法要处理InterruptedException异常；
+* **notify()**-唤醒一个处于等待状态的线程，当然在调用此方法的时候，并不能确切的唤醒某一个等待状态的线程，而是由JVM确定唤醒哪个线程，而且与优先级无关；
+* **notityAll()**-唤醒所有处于等待状态的线程，该方法并不是将对象的锁给所有线程，而是让它们竞争，只有获得锁的线程才能进入就绪状态；
+
 **111. 举例说明同步和异步**
 
-**112. 什么是线程池（thread pool）？**
+如果数据将在线程间共享。例如正在写的数据以后可能被另一个线程读到，或者正在读的数据可能已经被另一个线程写过了，那么这些数据就是共享数据，必须进行同步存取。
+
+当应用程序在对象上调用了一个需要花费很长时间来执行的方法，并且不希望让程序等待方法的返回时，就应该使用异步编程，在很多情况下采用异步途径往往更有效率。
+
+**112. 什么是线程池（thread pool）**
+
+一个线程池包括以下四个基本组成
+
+* **线程池管理器（ThreadPool）**-用于创建并管理线程池，包括 创建线程池，销毁线程池，添加新任务；
+* **工作线程（PoolWorker）**-线程池中线程，在没有任务时处于等待状态，可以循环的执行任务；
+* **任务接口（Task）**-每个任务必须实现的接口，以供工作线程调度任务的执行，它主要规定了任务的入口，任务执行完后的收尾工作，任务的执行状态等；
+* **任务队列（taskQueue）**-用于存放没有处理的任务。提供一种缓冲机制。
+
+假设一个服务器完成一项任务所需时间为：T1 创建线程时间，T2 在线程中执行任务的时间，T3 销毁线程时间。如果：T1 + T3 远大于 T2，则可以采用线程池，以提高服务器性能。
 
 **113. 说说线程的基本状态以及状态之间的关系？**
 
+线程的基本概念：线程指在程序执行过程中，能够执行程序代码的一个执行单位，每个程序至少都有一个线程，也就是程序本身
+
+Java中的线程有五种状态分别是：运行、就绪、阻塞、wait和sleep挂起、结束。就绪，运行，synchronize阻塞，wait和sleep挂起，结束。wait必须在synchronized内部调用。调用线程的start方法后线程进入就绪状态，线程调度系统将就绪状态的编程转为运行状态，遇到synchronized语句时，由运行状态转为阻塞，当synchronized获得锁后，由阻塞转为运行，在这种情况下可以调用wait方法转为挂起状态，当线程关联的代码执行完后，线程变为结束状态。
+
 **114. 如何保证线程安全？**
+
+*线程安全的三个方面*
+
+* **原子性**-提供互斥访问，同一时刻只能有一个线程对数据进行操作，（atomic,synchronized）；JDK里面提供了很多atomic类，AtomicInteger,AtomicLong,AtomicBoolean等，synchronized是一种同步锁，通过锁实现原子操作。
+* **可见性**-一个线程对主内存的修改可以及时地被其他线程看到，（synchronized,volatile）；可见性，JVM提供了synchronized和volatile。这里我们看volatile。
+* **有序性**-一个线程观察其他线程中的指令执行顺序，由于指令重排序，该观察结果一般杂乱无序，（happens-before原则）。在JMM中，允许编译器和处理器对指令进行重排序，但是重排序过程不会影响到单线程程序的执行，却会影响到多线程并发执行的正确性。可以通过volatile、synchronized、lock保证有序性。
 
 **115. 讲一下非公平锁和公平锁在reetrantlock里的实现。**
 
+* 非公平锁: 当线程争夺锁的过程中，会先进行一次CAS尝试获取锁，若失败，则进入acquire(1)函数，进行一次tryAcquire再次尝试获取锁，若再次失败，那么就通过addWaiter将当前线程封装成node结点加入到Sync队列，这时候该线程只能乖乖等前面的线程执行完再轮到自己了。
+* 公平锁: 当线程在获取锁的时候，会先判断Sync队列中是否有在等待获取资源的线程。若没有，则尝试获取锁，若有，那么就那么就通过addWaiter将当前线程封装成node结点加入到Sync队列中。
+
 **116. 讲一下synchronized，可重入怎么实现。**
+
+*可重入条件*
+
+* 不在函数内使用静态或全局数据。
+* 不返回静态或全局数据，所有数据都由函数的调用者提供。
+* 使用本地数据（工作内存），或者通过制作全局数据的本地拷贝来保护全局数据。
+* 不调用不可重入函数。
+
+synchronized是可重入锁,每个锁关联一个线程持有者和一个计数器。当计数器为0时表示该锁没有被任何线程持有，那么任何线程都都可能获得该锁而调用相应方法。当一个线程请求成功后，JVM会记下持有锁的线程，并将计数器计为1。此时其他线程请求该锁，则必须等待。而该持有锁的线程如果再次请求这个锁，就可以再次拿到这个锁，同时计数器会递增。当线程退出一个synchronized方法/块时，计数器会递减，如果计数器为0则释放该锁
 
 **117. 锁和同步的区别。**
 
+线程同步：java允许多线程并发控制，当多个线程同时操作一个可共享的资源变量时（如数据的增删改查）， 将会导致数据不准确，相互之间产生冲突，因此加入同步锁以避免在该线程没有完成操作之前，被其他线程的调用，从而保证了该变量的唯一性和准确性。
+
+锁是实现线程同步的一种方式
+
 **118. 什么是死锁(deadlock)？**
+
+多线程以及多进程改善了系统资源的利用率并提高了系统 的处理能力。然而，并发执行也带来了新的问题——死锁。所谓死锁是指多个线程因竞争资源而造成的一种僵局（互相等待），若无外力作用，这些进程都将无法向前推进。所谓死锁是指两个或两个以上的线程在执行过程中，因争夺资源而造成的一种互相等待的现象，若无外力作用，它们都将无法推进下去。
+
+死锁产生的原因
+
+* **系统资源的竞争**-通常系统中拥有的不可剥夺资源，其数量不足以满足多个进程运行的需要，使得进程在运行过程中，会因争夺资源而陷入僵局，如磁带机、打印机等。只有对不可剥夺资源的竞争才可能产生死锁，对可剥夺资源的竞争是不会引起死锁的。
+* **进程推进顺序非法**-进程在运行过程中，请求和释放资源的顺序不当，也同样会导致死锁。例如，并发进程 P1、P2分别保持了资源R1、R2，而进程P1申请资源R2，进程P2申请资源R1时，两者都会因为所需资源被占用而阻塞。
 
 **119. 如何确保N个线程可以访问N个资源同时又不导致死锁？**
 
+使用多线程时，一种非常简单的避免死锁的方式就是：指定锁的顺序，并强制线程按照指定的顺序获取锁。因此所有的线程都是以同样的加锁和释放锁，就不会出现死锁了
+
 **120. 请你简述synchronized和java.util.concurrent.locks.Lock的异同？**
+
+主要相同点：Lock能完成synchronized所实现的所有功能
+
+主要不同点：Lock有比synchronized更精确的线程语义和更好的性能。synchronized会自动释放锁，而Lock一定要求程序员手工释放，并且必须在finally从句中释放。
+
+*区别*
+
+* synchronized是java内置关键字，在jvm层面，Lock是个java类；
+* synchronized无法判断是否获取锁的状态，Lock可以判断是否获取到锁；
+* synchronized会自动释放锁(a 线程执行完同步代码会释放锁 ；b 线程执行过程中发生异常会释放锁)，Lock需在finally中手工释放锁（unlock()方法释放锁），否则容易造成线程死锁；
+* 用synchronized关键字的两个线程1和线程2，如果当前线程1获得锁，线程2线程等待。如果线程1阻塞，线程2则会一直等待下去，而Lock锁就不一定会等待下去，如果尝试获取不到锁，线程可以不用一直等待就结束了；
+* synchronized的锁可重入、不可中断、非公平，而Lock锁可重入、可判断、可公平（两者皆可）
+* Lock锁适合大量同步的代码的同步问题，synchronized锁适合代码少量的同步问题。
+
+```java
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+
+public class LockTest{
+    private Lock lock = new ReentrantLock();
+    /*
+     * 使用完毕释放后其他线程才能获取锁
+     */
+    public void lockTest(Thread thread) {
+        lock.lock(); //获取锁
+        try {
+            System.out.println("线程"+thread.getName() + "获取当前锁"); //打印当前锁的名称
+            Thread.sleep(2000); //为看出执行效果，是线程此处休眠2秒
+        } catch (Exception e) {
+            System.out.println("线程"+thread.getName() + "发生了异常释放锁");
+        }finally {
+            System.out.println("线程"+thread.getName() + "执行完毕释放锁");
+            lock.unlock(); //释放锁
+        }
+    }
+     
+    public static void main(String[] args) {
+        LockTest lockTest = new LockTest();
+        // 声明一个线程 “线程一”
+        Thread thread1 = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                lockTest.lockTest(Thread.currentThread());
+            }
+        }, "thread1");
+        // 声明一个线程 “线程二”
+        Thread thread2 = new Thread(new Runnable() {
+ 
+            @Override
+            public void run() {
+                lockTest.lockTest(Thread.currentThread());
+            }
+        }, "thread2");
+        // 启动2个线程
+        thread2.start();
+        thread1.start();
+    }
+}
+```
 
 **121. Java中的LongAdder和AtomicLong的区别**
 
+LongAdder在AtomicLong的基础上将单点的更新压力分散到各个节点，在低并发的时候通过对base的直接更新可以很好的保障和AtomicLong的性能基本保持一致，而在高并发的时候通过分散提高了性能。 
+ 
+缺点是LongAdder在统计的时候如果有并发更新，可能导致统计的数据有误差。
+
 **122. JDK和JRE的区别是什么？**
 
+* **JRE**-JRE是Java Runtime Environment的缩写，顾名思义是java运行时环境，包含了java虚拟机，java基础类库。是使用java语言编写的程序运行所需要的软件环境，是提供给想运行java程序的用户使用的，还有所有的Java类库的class文件，都在lib目录下，并且都打包成了jar。
+* **JDK**-Jdk是Java Development Kit的缩写，顾名思义是java开发工具包，是程序员使用java语言编写java程序所需的开发工具包，是提供给程序员使用的。JDK包含了JRE，同时还包含了编译java源码的编译器javac，还包含了很多java程序调试和分析的工具：jconsole，jvisualvm等工具软件，还包含了java程序编写所需的文档和demo例子程序。
+
+如果你需要运行java程序，只需安装JRE就可以了。如果你需要编写java程序，需要安装JDK。
+
 **123. 反射的实现与作用**
+
+反射机制是在运行状态中，对于任意的一个类，都能够知道这个类的所有属性和方法；对于任意一个对象，都能够调用它的任意一个方法和属性；这种动态获取的信息以及动态调用对象的方法的功能称为反射
+
+```java
+import java.io.*;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.*;
+import java.util.*;
+
+import java.*;
+/**
+ * ReflectionDemo
+ */
+public class ReflectionDemo implements TestDemo{
+    public static void main(String[] args) {
+        System.out.println("DuGu, Hello Java in Vs Code");
+        System.out.println("hahahah lalalala");
+        TestDemo that = new ReflectionDemo();
+        that.testDemo();
+    }
+
+    @Override
+    public void testDemo() {
+        System.out.println("Java Reflection Demo!");
+        dugu one = new dugu();
+        Class<?> oneClass = one.getClass();
+        Class<?> twoClass = dugu.class;
+        System.out.println("the two classes is equal?");
+        System.out.println(oneClass == twoClass);
+        System.out.println(oneClass);
+        System.out.println(oneClass.getName());
+        // System.out.println(Class.forName("src.dugu"));
+        try {
+            int i = 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        Constructor<?>[] conArray = oneClass.getConstructors();
+        for(Constructor<?> con : conArray){
+            System.out.println(con.toString());
+            System.out.println(String.format("%s, %d", con.getName(), con.getParameterCount()));        
+        }
+        //Object obj = oneClass.getConstructor(null).newInstance();
+        for(Field field: oneClass.getFields()){
+            System.out.println(field);
+        }
+
+        for(Method field: oneClass.getMethods()){
+            System.out.println(field);
+        }
+
+        for(Annotation field: oneClass.getAnnotations()){
+            System.out.println(field);
+        }
+        //oneClass.getMethod("print").invoke(oneClass.newInstance());
+    }
+}
+```
 
 124. 
 
