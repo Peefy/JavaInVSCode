@@ -2274,9 +2274,19 @@ HotSpot JVM把年轻代分为了三部分：1个Eden区和2个Survivor区（分�
 
 **128. JAVA虚拟机的作用?**
 
-**129. GC中如何判断对象需要被回收？**
+Java虚拟机解释运行字节码程序消除平台的相关性。JVM将Java字节码解释为具体平台的具体指令。一般的高级语言如要在不同的平台上运行，至少需要编译成不同的目标代码。而引入JVM后，Java语言在不同平台上运行时不需要重新编译。
+
+Java语言使用模式Java虚拟机屏蔽了与具体平台相关的信息，使得Java语言编译程序只需生成在Java虚拟机上运行的目标代码(字节码)，就可以在多种平台上不加修改地运行。Java虚拟机在执行字节码时，把字节码解释成具体平台上的机器指令执行。
+
+**129. Java的GC中如何判断对象需要被回收？**
+
+Java的GC用到垃圾回收机制算法，判断是否是垃圾，从而进行回收。引用可达法，程序运行从开始，每次引用对象，都将对引用的对象进行连接起来，到最后形成一张网，没有在这张网上的对象则被认为是垃圾对象。还使用引用计数法，对于对象的引用，每引用一次计数器加一，引用失败，计数器减一，当计数器一段时间为0，则可以被认为是垃圾。
 
 **130. JAVA虚拟机中，哪些可作为ROOT对象？**
+
+* 虚拟机栈(栈帧中的本地变量表)中引用的对象
+* 本地方法栈中JNI(即一般说的native方法)引用的对象
+* 方法区中的静态变量和常量引用的对象
 
 **131. JVM内存模型是什么？**
 
@@ -2286,29 +2296,175 @@ HotSpot JVM把年轻代分为了三部分：1个Eden区和2个Survivor区（分�
 * **本地方法栈(Native Method Stack)**-和虚拟机栈类似，专门提供给Native方法用的
 * **程序计数器**-占用很小的一片区域，JVM执行代码一行一行执行字节码，所以需要一个计数器来记录当前执行的行数。
 
-**132. jvm是如何实现线程？**
+**132. jvm如何实现线程？**
+
+1. Java程序通过Thread t = new Thread(),调用t.start()启动一个线程，使该线程进入可运行(Runnale)的状态
+2. 由JVM的决定去调度(Scheduler)在可运行状态(Runnable)下的线程，使该线程处于运行(Running)状态,由于JVM的调度会出现不可控性，即不是优先级高的先被调用，可能先调用也可能后调用的情况，运行状态(Runnable)下，调用礼让yield()方法，可使线程回到运行状态(Runnable)下，在次JVM调度(并不依赖优先级)
+3. 线程在Running的过程可能会遇到阻塞(Blocking)情况
+4. 线程run()运行结束或异常退出，线程达到死亡状态(Dead)
 
 **133. jvm最大内存限制多少**
 
+VM内存的最大值跟操作系统有很大的关系。简单的说就32位处理器虽然 可控内存空间有4GB,但是具体的操作系统会给一个限制，这个限制一般是2GB-3GB（一般来说Windows系统下为1.5G-2G，Linux系统 下为2G-3G），而64bit以上的处理器就不会有限制了
+
 **134. 什么是Java虚拟机？为什么Java被称作是“平台无关的编程语言”？**
+
+Java虚拟机解释运行字节码程序消除平台的相关性。JVM将Java字节码解释为具体平台的具体指令。一般的高级语言如要在不同的平台上运行，至少需要编译成不同的目标代码。而引入JVM后，Java语言在不同平台上运行时不需要重新编译。
 
 **135. 描述一下JVM加载class文件的原理机制?**
 
+Java中的所有类，都需要由类加载器装载到JVM中才能运行。类加载器本身也是一个类，而它的工作就是把class文件从硬盘读取到内存中。
+
+类装载方式有两种
+
+* 隐式装载：程序在运行过程中当碰到通过new等方式生成对象，隐式调用类装载器加载对应的类到jvm中
+* 显式装载：通过class.forname()等方法，显式加载需要的类
+
 **136. java中内存泄露是啥，什么时候出现内存泄露？**
+
+Java导致内存泄露的原因：长生命周期的对象持有短生命周期对象的应用就很可能发生内存泄露，尽管短生命周期对象已经不再需要，但是因为长生命周期对象持有它的引用而导致不能被回收，这就是Java中内存泄露的发生场景。
+
+发生内存泄露的场景
+1. 集合类:集合类仅仅有添加元素的方法，而没有相应的删除机制，导致内存被占用。而如果这个集合类是全局性的变量（比如类中的静态属性，全局性的map等即有静态引用或final一直指向它），那么没有相应的删除机制，很可能导致集合所占用的内存只增不减，因此提供这样的删除机制或者定期清除策略非常必要。
+2. 单例模式:不正确使用单例模式是引起内存泄露的一个常见问题，单例对象在被初始化后将在JVM的整个生命周期中存在（以静态变量的方式），如果单例对象持有外部对象的引用，那么这个外部对象将不能被jvm正常回收，导致内存泄露。
 
 **137. minor gc如果运行的很频繁，可能是什么原因引起的，minor gc如果运行的很慢，可能是什么原因引起的?**
 
+* minor gc运行的很频繁可能是什么原因引起的？
+1. 产生了太多朝生夕灭的对象导致需要频繁minor gc
+2. 新生代空间设置的比较小
+* minor gc运行的很慢有可能是什么原因引起的？
+1. 新生代空间设置过大
+2. 对象引用链较长，进行可达性分析时间较长
+3. 新生代survivor区设置的比较小，清理后剩余的对象不能装进去需要移动到老年代，造成移动开销
+4. 内存分配担保失败，由minor gc转化为full gc
+5. 采用的垃圾收集器效率较低，比如新生代使用serial收集器
+
 **138. 阐述GC算法**
 
-**139. GC是什么? 为什么要有GC?**
+*JVM垃圾收集算法*
+
+* **引用计数法**-给对象添加引用计数器，当引用对象时计数器+1，引用失效时，计数器-1，当计数器等于0时，对象失效，内存可以被回收。
+* **根搜索法**-通过GC roots可达的对象路径称为引用链（reference chain），当一个对象没有引用链时（即从GC roots不可达）则视为不可用对象，内存可以被回收。java使用该算法进行垃圾收集。
+
+*JVM垃圾回收算法*
+
+* **复制算法**-将内存分为（大小相等）两部分，每次只使用其中一块进行内存分配，当内存使用完后，就出发GC，将存活的对象直接复制到另一块空闲的内存中，然后对当前使用的内存块一次性清除所有，然后转到另一块内存进行使用。 
+* **标记-清除算法**-分两步进行，第一步标记出可以回收的对象，第二步统一清理可以回收的对象内存。缺点：首先标记和清除步骤效率都不高，其次会产生内存碎片。
+* **标记-整理算法**-类似于标记-清除算法，但是第二步进行内存回收时，将存活的对象向内存一端移动，达到消除内存碎片问题。
+* **分代收集算法**-java sun hotspot虚拟机将内存分为新生代（堆）、老年代（堆）、永久代（方法区、常量池、即时编译代码）几个区域，新生代主要使用基于复制算法的垃圾回收，老年代和永久代主要使用标记-整理算法进行垃圾回收。
+
+**139. Java的GC是什么? 为什么要有GC?**
+
+GC是垃圾收集的意思（Gabage Collection）,内存处理是编程人员容易出现问题的地方，忘记或者错误的内存回收会导致程序或系统的不稳定甚至崩溃。
+
+Java提供的GC功能可以自动监测对象是否超过作用域从而达到自动回收内存的目的，Java语言没有提供释放已分配内存的显示操作方法。
 
 **140. 垃圾回收的优点和原理。并考虑2种回收机制**
 
+垃圾回收机制有效的防止了内存泄露，可以有效的使用可使用的内存。使java程序员在编写程序时不再考虑内存管理的问题。由于有这个垃圾回收机制，java中的对象不再有“作用域”的概念，只有引用的对象才有“作用域”。
+
+垃圾回收有分代复制垃圾回收、标记垃圾回收、增量垃圾回收。
+
 **141. java中会存在内存泄漏吗，请简单描述。**
+
+Java导致内存泄露的原因：长生命周期的对象持有短生命周期对象的应用就很可能发生内存泄露，尽管短生命周期对象已经不再需要，但是因为长生命周期对象持有它的引用而导致不能被回收，这就是Java中内存泄露的发生场景。
+
+发生内存泄露的场景
+1. 集合类:集合类仅仅有添加元素的方法，而没有相应的删除机制，导致内存被占用。而如果这个集合类是全局性的变量（比如类中的静态属性，全局性的map等即有静态引用或final一直指向它），那么没有相应的删除机制，很可能导致集合所占用的内存只增不减，因此提供这样的删除机制或者定期清除策略非常必要。
+2. 单例模式:不正确使用单例模式是引起内存泄露的一个常见问题，单例对象在被初始化后将在JVM的整个生命周期中存在（以静态变量的方式），如果单例对象持有外部对象的引用，那么这个外部对象将不能被jvm正常回收，导致内存泄露。
 
 **142. 垃圾回收器的基本原理是什么？垃圾回收器可以马上回收内存吗？有什么办法主动通知虚拟机进行垃圾回收？（垃圾回收）**
 
-**143. 怎么打印日志？**
+对于GC来说，当程序员创建对象时，GC就开始监控这个对象的地址、大小以及使用情况。通常，GC采用有向图的方式记录和管理堆(heap)中的所有对象。通过这种方式确定哪些对象是"可达的"，哪些对象是"不可达的"。当GC确定一些对象为"不可达"时，GC就有责任回收这些内存空间。
+
+可以。程序员可以手动执行System.gc()，通知GC运行，但是Java语言规范并不保证GC一定会执行。强制执行垃圾回收：System.gc()。Runtime.getRuntime().gc()
+
+静态变量本身不会被回收，但是它所引用的对象应该是可以回收的。
+
+gc只回收heap里的对象，对象都是一样的,只要没有对它的引用,就可以被回收(但是不一定被回收). 对象的回收和是否static没有什么关系!
+
+垃圾回收可以有效的防止内存泄露，有效的使用可以使用的内存。垃圾回收器通常是作为一个单独的低级别的线程运行，不可预知的情况下对内存堆中已经死亡的或者长时间没有使用的对象进行清楚和回收，程序员不能实时的调用垃圾回收器对某个对象或所有对象进行垃圾回收。
+
+**143. Java怎么打印日志？**
+
+* 最简单的方式，就是system.println.out(error) ,这样直接在控制台打印消息了。
+
+* Java.util.logging ; 在JDK 1.4 版本之后，提供了日志的API ，可以往文件中写日志了。
+
+```java
+import java.io.IOException;  
+import java.util.Date;  
+import java.util.logging.FileHandler;  
+import java.util.logging.Formatter;  
+import java.util.logging.Level;  
+import java.util.logging.LogRecord;  
+import java.util.logging.Logger;  
+
+public class TestLogJava {  
+
+    public static void main(String[] args) throws IOException{  
+        Logger log = Logger.getLogger("tesglog");  
+        log.setLevel(Level.ALL);  
+        FileHandler fileHandler = new FileHandler("testlog.log");  
+        fileHandler.setLevel(Level.ALL);  
+        fileHandler.setFormatter(new LogFormatter());  
+        log.addHandler(fileHandler);  
+        log.info("This is test java util log");     
+    }  
+}  
+
+class LogFormatter extends Formatter {  
+    @Override  
+    public String format(LogRecord record) {  
+        Date date = new Date();  
+        String sDate = date.toString();  
+        return "[" + sDate + "]" + "[" + record.getLevel() + "]"  
+                + record.getClass() + record.getMessage() + "\n";  
+    }  
+}  
+```
+
+* log4j , 最强大的记录日志的方式。 可以通过配置 .properties 或是 .xml 的文件， 配置日志的目的地，格式等等。
+
+```java
+import org.apache.log4j.Logger;  
+import org.apache.log4j.PropertyConfigurator;  
+
+public class TestLog4j {  
+
+    public static void main(String[] args) {  
+        // 1. create log  
+        Logger log = Logger.getLogger(TestLog4j.class);  
+        // 2. get log config file  
+        PropertyConfigurator.configure("log4j.properties");  
+        // 3. start log  
+        log.debug("Here is some DEBUG");  
+        log.info("Here is some INFO");  
+        log.warn("Here is some WARN");  
+        log.error("Here is some ERROR");  
+        log.fatal("Here is some FATAL");  
+    }  
+}  
+```
+
+* commons-logging, 最综合和常见的日志记录方式， 经常是和log4j 结合起来使用。
+
+```java
+import org.apache.commons.logging.Log;  
+import org.apache.commons.logging.LogFactory;  
+
+public class TestLogCom {  
+    static Log log = LogFactory.getLog(TestLog.class);  
+    public static void main(String[] args) {  
+        log.debug("Here is some DEBUG");  
+        log.info("Here is some INFO");  
+        log.warn("Here is some WARN");  
+        log.error("Here is some ERROR");  
+        log.fatal("Here is some FATAL");  
+    }  
+}
+```
 
 **144. 运行时异常与一般异常有何异同？**
 
@@ -2414,7 +2570,7 @@ HotSpot JVM把年轻代分为了三部分：1个Eden区和2个Survivor区（分�
 
 **194. EJB需直接实现它的业务接口或Home接口吗，请简述理由。**
 
-### Java  web编程
+### Java Web编程
 
 **195. 启动项目时如何实现不在链接里输入项目名就能启动?**
 
