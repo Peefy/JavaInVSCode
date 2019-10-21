@@ -2468,9 +2468,39 @@ public class TestLogCom {
 
 **144. 运行时异常与一般异常有何异同？**
 
+Java语言使用一种称为异常处理的错误捕捉机制进行处理。
+
+程序当中使用try{} catch{} finally{} 进行异常处理，使用频率很高
+
+在Java中，异常对象都是派生于Throwable类的一个实例
+
+下一层分解为两个分支：**Error**和**Exceprion**。
+
+**Error**层次结构描述了java运行时系统的内部错误和资源耗尽错误。大多数错误与代码编写者执行的操作无关，而表示代码运行时 JVM（Java 虚拟机）出现的问题。应用程序不应该抛出这种类型的对象。
+
+**Exceprion**这个层次结构又分解为连个分支：一个分支派生于**RuntimeException**；另一个分支包含其他异常。划分两个分支的规则是：*由程序错误导致的异常属于RuntimeException；而程序本身没有没有问题，但由于像I/O错误这类异常导致的异常属于其他异常。*
+
 **145. error和exception有什么区别?** 
 
-**146. 给我一个你最常见到的runtime exception**
+**Error**层次结构描述了java运行时系统的内部错误和资源耗尽错误。大多数错误与代码编写者执行的操作无关，而表示代码运行时 JVM（Java 虚拟机）出现的问题。应用程序不应该抛出这种类型的对象。
+
+**Exceprion**这个层次结构又分解为连个分支：一个分支派生于**RuntimeException**；另一个分支包含其他异常。划分两个分支的规则是：由程序错误导致的异常属于RuntimeException；而程序本身没有没有问题，但由于像I/O错误这类异常导致的异常属于其他异常。
+
+**146. Java中常见的runtime exception**
+
+常见的**RuntimeException**（运行时异常）：
+* **IndexOutOfBoundsException** (下标越界异常)
+* **NullPointerException** (空指针异常)
+* **NumberFormatException** （String转换为指定的数字类型异常）
+* **ArithmeticException** （算术运算异常 如除数为0）
+* **ArrayStoreException** （向数组中存放与声明类型不兼容对象异常）
+* **SecurityException** （安全异常）
+
+常见的**IOException**（其他异常）
+
+* **FileNotFoundException**（文件未找到异常。）
+* **IOException**（操作输入流和输出流时可能出现的异常。）
+* **EOFException** （文件已结束异常）
 
 **147. Java中的异常处理机制的简单原理和应用。**
 
@@ -2478,11 +2508,44 @@ public class TestLogCom {
 
 **149. 什么是java序列化，如何实现java序列化？**
 
+Java序列化：把Java对象转换为字节序列的过程
+
+Java反序列化：把字节序列恢复为Java对象的过程
+
+用途：把对象的字节序列永久地保存到硬盘上，通常存放在一个文件中；在网络上传送对象的字节序列。
+
+序列化的实现：将需要被序列化的类实现Serializable接口，该接口没有需要实现的方法，implements      Serializable只是为了标注该对象是可被序列化的，然后使用一个输出流(如：FileOutputStream)来构造一个ObjectOutputStream(对象流)对象，接着，使用ObjectOutputStream对象的writeObject(Object obj)方法就可以将参数为obj的对象写出(即保存其状态)，要恢复的话则用输入流。
+
 **150. 运行时异常与受检异常有什么区别？**
+
+**unchecked exception**（非检查异常）：包括运行时异常（RuntimeException）和派生于Error类的异常。对于运行时异常，java编译器不要求必须进行异常捕获处理或者抛出声明，由程序员自行决定。
+
+**checked exception**（检查异常，编译异常，必须要处理的异常）
+也：称非运行时异常（运行时异常以外的异常就是非运行时异常），java编译器强制程序员必须进行捕获处理，比如常见的IOExeption和SQLException。对于非运行时异常如果不进行捕获或者抛出声明处理，编译都不会通过。
+
+通过使用**throws**关键字指定
+
+```java
+@Service
+public class UserService {
+    @Autowired
+    private UserRepository userRepository;
+    public User getUserByUserId(int userId) throws EmailNotRegisterException, InvalidPasswordException, InvalidLoginInfoException {
+        if(userId == 0) throw new EmailNotRegisterException("邮箱没有注册");
+        if(userId == -1) throw new InvalidLoginInfoException("账号不存在");
+        if(userId == -2) throw new InvalidPasswordException("密码错误");
+        return userRepository.findUserByUserId(userId);
+    }
+}
+```
 
 ### JavaEE Spring部分
 
 **151. 说一下IOC和AOP?**
+
+**IOC**-控制反转，将对象的控制权交给容器。是面向对象编程中的一种设计原则，可以用来减低计算机代码之间的耦合度。
+
+**AOP**-切面编程。通过预编译方式和运行期动态代理实现程序功能的统一维护的一种技术。将日志记录，性能统计，安全控制，事务处理，异常处理等代码从业务逻辑代码中划分出来，通过对这些行为的分离，我们希望可以将它们独立到非指导业务逻辑的方法中，进而改变这些行为的时候不影响业务逻辑的代码。
 
 **152. 介绍一下bean的生命周期**
 
@@ -2679,6 +2742,8 @@ GET和POST是HTTP请求的两种基本方法，最直观的区别就是GET把参
 * GET参数通过URL传递，POST放在Request body中
 
 **236. cookie 和session 的区别？**
+
+
 
 **237. forward 和redirect的区别**
 
