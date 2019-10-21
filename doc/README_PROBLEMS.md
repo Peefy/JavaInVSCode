@@ -2549,7 +2549,11 @@ public class UserService {
 
 **152. 介绍一下bean的生命周期**
 
+实例化bean对象，设置对象属性，检查Aware相关接口并设置相关依赖，BeanPostProcessor前置处理，检查是否是InitializingBean以决定是否调用afterPropertiesSet方法，检查是否配置有自定义的init-method，BeanPostProcessor后置处理，注册必要的Destruction先关回调接口，使用中，是否实现DisposableBean接口，是否配置有自定义的destroy方法
+
 **153. Spring里面注解用过没有？autowired 和resource区别？**
+
+两者的共同点都可以写在字段和setter方法上。两者如果都写在字段上，那么就不需要再写setter方法。不同点：(1) `@Autowired`为Spring提供的注解，需要导入包`org.springframework.beans.factory.annotation.Autowired`;只按照`byType`注入。`@Autowired`注解是按照类型(`byType`)装配依赖对象，默认情况下它要求依赖对象必须存在，如果允许`null`值，可以设置它的`required`属性为`false`。如果想使用按照名称(`byName`)来装配，可以结合`@Qualifier`注解一起使用。(2) `@Resource` 默认按照`byName`自动注入，由J2EE提供，需要导入包`javax.annotation.Resource`。`@Resource`有两个重要的属性：`name`和`type`，而Spring将`@Resource`注解的`name`属性解析为`bean`的名字，而`type`属性则解析为`bean`的类型。所以，如果使用`name`属性，则使用`byName`的自动注入策略，而使用`type`属性时则使用`byType`自动注入策略。如果既不指定`name`也不制定`type`属性，这时将通过反射机制使用`byName`自动注入策略
 
 **154. @Controller和@RestController的区别？**
 
