@@ -64,14 +64,14 @@ Java 5.0引入了枚举，枚举限制变量只能是预先设定好的值。使
 ```java
 
 class FreshJuice {
-   enum FreshJuiceSize{ SMALL, MEDIUM , LARGE }
+   enum FreshJuiceSize{ SMALL, MEDIUM, LARGE }
    FreshJuiceSize size;
 }
  
 public class FreshJuiceTest {
    public static void main(String []args){
       FreshJuice juice = new FreshJuice();
-      juice.size = FreshJuice.FreshJuiceSize.MEDIUM  ;
+      juice.size = FreshJuice.FreshJuiceSize.MEDIUM;
    }
 }
 
